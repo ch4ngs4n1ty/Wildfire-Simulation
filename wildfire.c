@@ -30,6 +30,10 @@ int main(int argc, char * argv[]) {
 	int opt;
 	int tmpsize = 0;
 
+	int burn_chance = 10; //inital value of burn percent chance
+
+
+
 
 	for (int i = 0; i < argc; ++i) {
 
@@ -45,7 +49,7 @@ int main(int argc, char * argv[]) {
 
 		switch (opt) {
 
-		case 'H':
+		case 'H': // outputs the Simulation Configuration Options
 
 			fprintf(stderr, "usage: wildfire [options]\n");
 			fprintf(stderr, "By default, the simulation runs in overlay display mode.\n");
@@ -56,12 +60,33 @@ int main(int argc, char * argv[]) {
 
 			break;
 
-		case 'b':
+		case 'b': // gets grid population that is burning at start of simulataion
 
 			tmpsize = (int) strtol(optarg, NULL, 10);
-			fprintf(stderr, "%d\n" , tmpsize);
+			burn_chance = tmpsize;
+
+			if (burn_chance < 1 || burn_chance > 100) {
+
+				return 1;
+
+			}
+
+			tmpsize = 0;
+
+			//fprintf(stderr, "%d\n" , tmpsize);
+
+		case 'c': // probability of tree catching fire, percentage chance
+
+			tmpsize = (
+
+		case 'd':
 
 
+		case 'n':
+
+		case 'p':
+
+		case 's':
 
 		}
 
