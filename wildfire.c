@@ -3,7 +3,7 @@
 // author: Ethan Chang
 
 
-#include _DEFAULT_SOURCE
+#define _DEFAULT_SOURCE
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,7 +13,9 @@
 #include <unistd.h>
 
 
-#define EMPTY 'E'
+#define EMPTY ' '
+#define TREE 'Y'
+#define BURNING '*'
 
 
 static int b_chance = 10; //inital value of burn percent chance
@@ -205,6 +207,14 @@ void start_grid(char **grid, int size) {
 
 	srand(41); //random number generator
 
+	int total_cell = size * size //gets total number of cells in a grid
+
+	int t_num = (int)(d_chance / 100 * total_cell);
+	int b_num = (int)(b_chance / 100 * total_cell);
+	int empty_cell = total_cell - t_num - b_num;
+
+
+
 	for (int r = 0; r < size; ++r) {
 
 		for (int c = 0; c < size; ++c) {
@@ -213,6 +223,38 @@ void start_grid(char **grid, int size) {
 
 		}
 	}
+
+	int *cells = malloc(total_cell * sizeof(int));
+
+	for (int i = 0; i < total_cell; ++i) {
+
+		cells[i] = i;
+
+	}
+
+	fy_shuffle(cells, total_cell);
+
+
+	for (int i = 0; i < t_num; ++i) {
+
+		int loc = cells[i];
+		int row = loc / size;
+		int col = loc % size;
+		grid[row][col] = TREE;
+
+	}
+
+	for (int i = t_num; i < t_num + b_num; ++i) {
+
+		int loc = cells[i];
+		int row = loc / size;
+		int col = loc % size;
+		grid[row][col] = BURNING;
+
+	}
+
+	free(cells);
+
 }
 
 void display_grid(char **grid, int size) {
