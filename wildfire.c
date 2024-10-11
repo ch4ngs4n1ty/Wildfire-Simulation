@@ -84,7 +84,7 @@ static void command_parse(int argc, char *argv[]) {
 
 			tmpsize = 0;
 
-			fprintf(stderr, "%d\n" , b_chance);
+//			fprintf(stderr, "%d\n" , b_chance);
 
 			break;
 
@@ -100,7 +100,7 @@ static void command_parse(int argc, char *argv[]) {
 
 			}
 
-			fprintf(stderr, "%d\n" , c_chance);
+//			fprintf(stderr, "%d\n" , c_chance);
 
 			break;
 
@@ -116,7 +116,7 @@ static void command_parse(int argc, char *argv[]) {
 
 			tmpsize = 0;
 
-			fprintf(stderr, "%d\n" , d_chance);
+//			fprintf(stderr, "%d\n" , d_chance);
 
 			break;
 
@@ -136,7 +136,7 @@ static void command_parse(int argc, char *argv[]) {
 
 			tmpsize = 0;
 
-			fprintf(stderr, "%d\n" , n_chance);
+//			fprintf(stderr, "%d\n" , n_chance);
 
 			break;
 
@@ -156,7 +156,7 @@ static void command_parse(int argc, char *argv[]) {
 
 			tmpsize = 0;
 
-			fprintf(stderr, "%d\n" , p_mode);
+//			fprintf(stderr, "%d\n" , p_mode);
 
 			break;
 
@@ -174,7 +174,7 @@ static void command_parse(int argc, char *argv[]) {
 
 			}
 
-			fprintf(stderr, "%d\n" , s_size);
+//			fprintf(stderr, "%d\n" , s_size);
 
 			break;
 
@@ -191,9 +191,9 @@ static void command_parse(int argc, char *argv[]) {
 
 void fy_shuffle(int *cells, int n) {
 
-	for (int i = n - 1; i > 0; i--) {
+	for (int i = n - 1; i > 0; --i) {
 
-		j = rand();
+		int j = rand() % (i + 1);
 
 		int temp = cells[i];
 		cells[i] = cells[j];
@@ -203,17 +203,17 @@ void fy_shuffle(int *cells, int n) {
 }
 
 
-void start_grid(char **grid, int size) {
+void start_grid(char **grid, int size, int d_chance, int b_chance) {
 
 	srand(41); //random number generator
 
-	int total_cell = size * size //gets total number of cells in a grid
+	printf("%d, %d \n", d_chance, b_chance);
 
-	int t_num = (int)(d_chance / 100 * total_cell);
-	int b_num = (int)(b_chance / 100 * total_cell);
-	int empty_cell = total_cell - t_num - b_num;
+	int total_cell = size * size; //gets total number of cells in a grid
 
-
+	int t_num = (int)(d_chance / 100.0 * total_cell);
+	int b_num = (int)(b_chance / 100.0 * total_cell);
+//	int empty_cell = total_cell - t_num - b_num;
 
 	for (int r = 0; r < size; ++r) {
 
@@ -224,7 +224,7 @@ void start_grid(char **grid, int size) {
 		}
 	}
 
-	int *cells = malloc(total_cell * sizeof(int));
+	int *cells = malloc(total_cell * sizeof(int)); //items representing all locations in grid
 
 	for (int i = 0; i < total_cell; ++i) {
 
@@ -234,13 +234,22 @@ void start_grid(char **grid, int size) {
 
 	fy_shuffle(cells, total_cell);
 
+	printf("total cell %d, Tree: %d, Burn: %d\n" , total_cell, t_num, b_num);
+
+
 
 	for (int i = 0; i < t_num; ++i) {
 
 		int loc = cells[i];
 		int row = loc / size;
 		int col = loc % size;
+
+
+
 		grid[row][col] = TREE;
+
+
+
 
 	}
 
@@ -253,9 +262,12 @@ void start_grid(char **grid, int size) {
 
 	}
 
-	free(cells);
+//	**/
+
+	free(cells); //free allocated memory of cells
 
 }
+
 
 void display_grid(char **grid, int size) {
 
@@ -284,7 +296,8 @@ int main(int argc, char *argv[]) {
 
 	}
 
-	start_grid(grid, s_size);
+	printf("%d, %d \n" , d_chance, b_chance);
+	start_grid(grid, s_size, d_chance, b_chance);
 	display_grid(grid, s_size);
 
 	for (int i = 0; i < s_size; ++i) {
