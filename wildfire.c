@@ -2,11 +2,8 @@
 // wildfire.c fire game
 // author: Ethan Chang
 
-
-
 #include <stdio.h>
 #include <stdlib.h>
-
 
 #include <getopt.h>
 
@@ -30,9 +27,13 @@ int main(int argc, char * argv[]) {
 	int opt;
 	int tmpsize = 0;
 
-	int burn_chance = 10; //inital value of burn percent chance
-
-
+	int b_chance = 10; //inital value of burn percent chance
+	int c_chance = 30; //initial value of tree catching fire percent chance
+	int d_chance = 50; //initial value of density of the forest percent thance
+	int n_chance = 25; //initial value of neighbor effect that tree might catch fire
+	int p_mode = 0; //number of runs to display
+//	int o_mode = 1; //default mode, overlay mode
+	int s_size = 10; //default size of the grid
 
 
 	for (int i = 0; i < argc; ++i) {
@@ -63,30 +64,115 @@ int main(int argc, char * argv[]) {
 		case 'b': // gets grid population that is burning at start of simulataion
 
 			tmpsize = (int) strtol(optarg, NULL, 10);
-			burn_chance = tmpsize;
+			b_chance = tmpsize;
 
-			if (burn_chance < 1 || burn_chance > 100) {
+			if (b_chance < 1 || b_chance > 100) {
 
-				return 1;
+				exit(EXIT_FAILURE);
 
 			}
 
 			tmpsize = 0;
 
-			//fprintf(stderr, "%d\n" , tmpsize);
+			fprintf(stderr, "%d\n" , b_chance);
+
+			break;
+
 
 		case 'c': // probability of tree catching fire, percentage chance
 
-			tmpsize = (
+			tmpsize = (int) strtol(optarg, NULL, 10);
+			c_chance = tmpsize;
+
+			if (c_chance < 1 || c_chance > 100) {
+
+				exit(EXIT_FAILURE);
+
+			}
+
+			fprintf(stderr, "%d\n" , c_chance);
+
+			break;
+
 
 		case 'd':
+			tmpsize = (int) strtol(optarg, NULL, 10);
+			d_chance = tmpsize;
 
+			if (d_chance < 1 || d_chance > 100) {
+
+				exit(EXIT_FAILURE);
+			}
+
+			tmpsize = 0;
+
+			fprintf(stderr, "%d\n" , d_chance);
+
+			break;
 
 		case 'n':
 
+			tmpsize = (int) strtol(optarg, NULL, 10);
+
+			if (tmpsize >= 0 && tmpsize <= 100) {
+
+				n_chance = tmpsize;
+
+
+			} else {
+
+				exit(EXIT_FAILURE);
+
+			}
+
+			tmpsize = 0;
+
+			fprintf(stderr, "%d\n" , n_chance);
+
+			break;
+
 		case 'p':
 
+			tmpsize = (int) strtol(optarg, NULL, 10);
+
+			if (p_mode >= 0) {
+
+				p_mode = tmpsize;
+
+			} else {
+
+				exit(EXIT_FAILURE);
+
+			}
+
+			tmpsize = 0;
+
+			fprintf(stderr, "%d\n" , p_mode);
+
+			break;
+
 		case 's':
+
+			tmpsize = (int) strtol(optarg, NULL, 10);
+
+			if (tmpsize >= 5 && tmpsize <= 40) {
+
+				s_size = tmpsize;
+
+			} else {
+
+				exit(EXIT_FAILURE);
+
+			}
+
+			fprintf(stderr, "%d\n" , s_size);
+
+			break;
+
+
+		default:
+
+			exit(EXIT_FAILURE);
 
 		}
 
