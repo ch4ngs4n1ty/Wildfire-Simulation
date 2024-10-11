@@ -2,7 +2,6 @@
 // wildfire.c fire game
 // author: Ethan Chang
 
-
 #define _DEFAULT_SOURCE
 
 #include <stdio.h>
@@ -11,7 +10,6 @@
 #include <getopt.h>
 #include <time.h>
 #include <unistd.h>
-
 
 #define EMPTY ' '
 #define TREE 'Y'
@@ -46,14 +44,6 @@ static void command_parse(int argc, char *argv[]) {
 
 	int opt;
 	int tmpsize = 0;
-
-	//for (int i = 0; i < argc; ++i) {
-
-	//	fprintf(stderr, "%s ", argv[i]);
-
-	//}
-
-	//fprintf(stderr, "\n");
 
 	while ( ( opt = getopt( argc, argv, "Hs:b:c:d:n:p:s") ) != -1) {
 
@@ -234,35 +224,27 @@ void start_grid(char **grid, int size, int d_chance, int b_chance) {
 
 	fy_shuffle(cells, total_cell);
 
-	printf("total cell %d, Tree: %d, Burn: %d\n" , total_cell, t_num, b_num);
+	//printf("total cell %d, Tree: %d, Burn: %d\n" , total_cell, t_num, b_num);
 
+	int total_tree = t_num + b_num;
 
-
-	for (int i = 0; i < t_num; ++i) {
-
-		int loc = cells[i];
-		int row = loc / size;
-		int col = loc % size;
-
-
-
-		grid[row][col] = TREE;
-
-
-
-
-	}
-
-	for (int i = t_num; i < t_num + b_num; ++i) {
+	for (int i = 0; i < total_cell; i++) {
 
 		int loc = cells[i];
 		int row = loc / size;
 		int col = loc % size;
-		grid[row][col] = BURNING;
 
+		if (i < t_num && grid[row][col] == EMPTY) {
+
+			grid[row][col] = TREE;
+
+		} else if (i < total_tree && grid[row][col] == EMPTY) {
+
+			grid[row][col] = BURNING;
+
+		}
 	}
 
-//	**/
 
 	free(cells); //free allocated memory of cells
 
@@ -271,9 +253,9 @@ void start_grid(char **grid, int size, int d_chance, int b_chance) {
 
 void display_grid(char **grid, int size) {
 
-	for (int r = 0; r < size; ++r) {
+	for (int r = 0; r < size; r++) {
 
-		for (int c = 0; c < size; ++c) {
+		for (int c = 0; c < size; c++) {
 
 			printf("%c", grid[r][c]);
 
@@ -290,17 +272,17 @@ int main(int argc, char *argv[]) {
 
 	char **grid = malloc(s_size * sizeof(char*));
 
-	for (int i = 0; i < s_size; ++i) {
+	for (int i = 0; i < s_size; i++) {
 
 		grid[i] = malloc(s_size * sizeof(char));
 
 	}
 
-	printf("%d, %d \n" , d_chance, b_chance);
+	//printf("%d, %d \n" , d_chance, b_chance);
 	start_grid(grid, s_size, d_chance, b_chance);
 	display_grid(grid, s_size);
 
-	for (int i = 0; i < s_size; ++i) {
+	for (int i = 0; i < s_size; i++) {
 
 		free(grid[i]);
 
