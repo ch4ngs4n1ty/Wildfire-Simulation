@@ -2,10 +2,28 @@
 // wildfire.c fire game
 // author: Ethan Chang
 
+
+#include _DEFAULT_SOURCE
+
 #include <stdio.h>
 #include <stdlib.h>
 
 #include <getopt.h>
+#include <time.h>
+#include <unistd.h>
+
+
+#define EMPTY 'E'
+
+
+static int b_chance = 10; //inital value of burn percent chance
+static int c_chance = 30; //initial value of tree catching fire percent chance
+static int d_chance = 50; //initial value of density of the forest percent thance
+static int n_chance = 25; //initial value of neighbor effect that tree might catch fire
+static int p_mode = 0; //number of runs to display
+//	int o_mode = 1; //default mode, overlay mode
+static int s_size = 10; //default size of the grid
+
 
 static void layout() {
 
@@ -22,29 +40,18 @@ static void layout() {
 
 }
 
-int main(int argc, char * argv[]) {
+static void command_parse(int argc, char *argv[]) {
 
 	int opt;
 	int tmpsize = 0;
 
-	int b_chance = 10; //inital value of burn percent chance
-	int c_chance = 30; //initial value of tree catching fire percent chance
-	int d_chance = 50; //initial value of density of the forest percent thance
-	int n_chance = 25; //initial value of neighbor effect that tree might catch fire
-	int p_mode = 0; //number of runs to display
-//	int o_mode = 1; //default mode, overlay mode
-	int s_size = 10; //default size of the grid
+	//for (int i = 0; i < argc; ++i) {
 
+	//	fprintf(stderr, "%s ", argv[i]);
 
-	for (int i = 0; i < argc; ++i) {
+	//}
 
-		fprintf(stderr, "%s ", argv[i]);
-
-	}
-
-	fprintf(stderr, "\n");
-
-
+	//fprintf(stderr, "\n");
 
 	while ( ( opt = getopt( argc, argv, "Hs:b:c:d:n:p:s") ) != -1) {
 
@@ -58,6 +65,7 @@ int main(int argc, char * argv[]) {
 
 			layout();
 
+			exit(0); //stops running after help layout
 
 			break;
 
@@ -118,7 +126,6 @@ int main(int argc, char * argv[]) {
 
 				n_chance = tmpsize;
 
-
 			} else {
 
 				exit(EXIT_FAILURE);
@@ -175,8 +182,76 @@ int main(int argc, char * argv[]) {
 			exit(EXIT_FAILURE);
 
 		}
+	}
+}
+
+
+
+void fy_shuffle(int *cells, int n) {
+
+	for (int i = n - 1; i > 0; i--) {
+
+		j = rand();
+
+		int temp = cells[i];
+		cells[i] = cells[j];
+		cells[j] = temp;
 
 	}
+}
+
+
+void start_grid(char **grid, int size) {
+
+	srand(41); //random number generator
+
+	for (int r = 0; r < size; ++r) {
+
+		for (int c = 0; c < size; ++c) {
+
+			grid[r][c] = EMPTY;
+
+		}
+	}
+}
+
+void display_grid(char **grid, int size) {
+
+	for (int r = 0; r < size; ++r) {
+
+		for (int c = 0; c < size; ++c) {
+
+			printf("%c", grid[r][c]);
+
+		}
+
+		printf("\n");
+	}
+
+}
+
+int main(int argc, char *argv[]) {
+
+	command_parse(argc, argv);
+
+	char **grid = malloc(s_size * sizeof(char*));
+
+	for (int i = 0; i < s_size; ++i) {
+
+		grid[i] = malloc(s_size * sizeof(char));
+
+	}
+
+	start_grid(grid, s_size);
+	display_grid(grid, s_size);
+
+	for (int i = 0; i < s_size; ++i) {
+
+		free(grid[i]);
+
+	}
+
+	free(grid);
 
 }
 
