@@ -199,10 +199,24 @@ void start_grid(char **grid, int size, int d_chance, int b_chance) {
 
 	printf("%d, %d \n", d_chance, b_chance);
 
+	float d_prob = (float) d_chance/100;
+	float b_prob = (float) b_chance/100;
+
+	printf("%f, %f \n", d_prob, b_prob);
+
 	int total_cell = size * size; //gets total number of cells in a grid
 
-	int t_num = (int)(d_chance / 100.0 * total_cell);
-	int b_num = (int)(b_chance / 100.0 * total_cell);
+	//float d_prob = d_chance/100
+
+
+	int treeT_num = (int)(d_prob * total_cell);
+
+	int burnT_num = (int)(b_prob * treeT_num);
+
+	int aliveT_num = treeT_num - burnT_num;
+
+	int totalT_num = treeT_num;
+
 //	int empty_cell = total_cell - t_num - b_num;
 
 	for (int r = 0; r < size; ++r) {
@@ -226,19 +240,17 @@ void start_grid(char **grid, int size, int d_chance, int b_chance) {
 
 	//printf("total cell %d, Tree: %d, Burn: %d\n" , total_cell, t_num, b_num);
 
-	int total_tree = t_num + b_num;
-
 	for (int i = 0; i < total_cell; i++) {
 
 		int loc = cells[i];
 		int row = loc / size;
 		int col = loc % size;
 
-		if (i < t_num && grid[row][col] == EMPTY) {
+		if (i < aliveT_num && grid[row][col] == EMPTY) {
 
 			grid[row][col] = TREE;
 
-		} else if (i < total_tree && grid[row][col] == EMPTY) {
+		} else if (i < totalT_num && grid[row][col] == EMPTY) {
 
 			grid[row][col] = BURNING;
 
