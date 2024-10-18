@@ -11,6 +11,8 @@
 #include <time.h>
 #include <unistd.h>
 
+#define MAX_GRID 40 // maximum cell size grid
+
 #define EMPTY ' '
 #define TREE 'Y'
 #define BURNING '*'
@@ -39,6 +41,18 @@ static void layout() {
 	fprintf(stderr, "\n");
 
 }
+
+static void p_header(int step) {
+
+	printf("===========================\n");
+	printf("======== Wildfire =========\n");
+	printf("===========================\n");
+	printf("=== Print %d  Time Steps ===\n", step);
+	printf("===========================\n");
+
+}
+
+
 
 static void command_parse(int argc, char *argv[]) {
 
@@ -74,8 +88,6 @@ static void command_parse(int argc, char *argv[]) {
 
 			tmpsize = 0;
 
-//			fprintf(stderr, "%d\n" , b_chance);
-
 			break;
 
 
@@ -90,8 +102,6 @@ static void command_parse(int argc, char *argv[]) {
 
 			}
 
-//			fprintf(stderr, "%d\n" , c_chance);
-
 			break;
 
 
@@ -105,8 +115,6 @@ static void command_parse(int argc, char *argv[]) {
 			}
 
 			tmpsize = 0;
-
-//			fprintf(stderr, "%d\n" , d_chance);
 
 			break;
 
@@ -126,8 +134,6 @@ static void command_parse(int argc, char *argv[]) {
 
 			tmpsize = 0;
 
-//			fprintf(stderr, "%d\n" , n_chance);
-
 			break;
 
 		case 'p':
@@ -146,15 +152,13 @@ static void command_parse(int argc, char *argv[]) {
 
 			tmpsize = 0;
 
-//			fprintf(stderr, "%d\n" , p_mode);
-
 			break;
 
 		case 's':
 
 			tmpsize = (int) strtol(optarg, NULL, 10);
 
-			if (tmpsize >= 5 && tmpsize <= 40) {
+			if (tmpsize >= 5 && tmpsize <= MAX_GRID) {
 
 				s_size = tmpsize;
 
@@ -164,10 +168,7 @@ static void command_parse(int argc, char *argv[]) {
 
 			}
 
-//			fprintf(stderr, "%d\n" , s_size);
-
 			break;
-
 
 		default:
 
@@ -193,31 +194,21 @@ void fy_shuffle(int *cells, int n) {
 }
 
 
-void start_grid(char **grid, int size, int d_chance, int b_chance) {
+void start_grid(char grid[MAX_GRID][MAX_GRID], int size, int d_chance, int b_chance) {
 
 	srand(41); //random number generator
 
-	printf("%d, %d \n", d_chance, b_chance);
+	float d_prob = (float) d_chance/100; // percentage chance of density
 
-	float d_prob = (float) d_chance/100;
-	float b_prob = (float) b_chance/100;
-
-	printf("%f, %f \n", d_prob, b_prob);
+	float b_prob = (float) b_chance/100; // percentage chance of burning
 
 	int total_cell = size * size; //gets total number of cells in a grid
-
-	//float d_prob = d_chance/100
-
 
 	int treeT_num = (int)(d_prob * total_cell);
 
 	int burnT_num = (int)(b_prob * treeT_num);
 
-	int aliveT_num = treeT_num - burnT_num;
-
 	int totalT_num = treeT_num;
-
-//	int empty_cell = total_cell - t_num - b_num;
 
 	for (int r = 0; r < size; ++r) {
 
@@ -228,7 +219,7 @@ void start_grid(char **grid, int size, int d_chance, int b_chance) {
 		}
 	}
 
-	int *cells = malloc(total_cell * sizeof(int)); //items representing all locations in grid
+	int cells[MAX_GRID * MAX_GRID]; // max cell array
 
 	for (int i = 0; i < total_cell; ++i) {
 
@@ -238,32 +229,29 @@ void start_grid(char **grid, int size, int d_chance, int b_chance) {
 
 	fy_shuffle(cells, total_cell);
 
-	//printf("total cell %d, Tree: %d, Burn: %d\n" , total_cell, t_num, b_num);
-
-	for (int i = 0; i < total_cell; i++) {
+	for (int i = 0; i < burnT_num; i++) {
 
 		int loc = cells[i];
 		int row = loc / size;
 		int col = loc % size;
 
-		if (i < aliveT_num && grid[row][col] == EMPTY) {
+		grid[row][col] = BURNING;
 
-			grid[row][col] = TREE;
-
-		} else if (i < totalT_num && grid[row][col] == EMPTY) {
-
-			grid[row][col] = BURNING;
-
-		}
 	}
 
+	for (int i = burnT_num; i < totalT_num; i++) {
 
-	free(cells); //free allocated memory of cells
+		int loc = cells[i];
+		int row = loc / size;
+		int col = loc % size;
+
+		grid[row][col] = TREE;
+
+	}
 
 }
 
-
-void display_grid(char **grid, int size) {
+void display_grid(char grid[MAX_GRID][MAX_GRID], int size, int c_chance, int d_chance, int b_chance, int n_chance) {
 
 	for (int r = 0; r < size; r++) {
 
@@ -276,32 +264,52 @@ void display_grid(char **grid, int size) {
 		printf("\n");
 	}
 
+	float pCatch = (float) c_chance / 100.0;
+	float density = (float) d_chance / 100.0;
+	float pBurning = (float) b_chance / 100.0;
+	float pNeighbor = (float) n_chance / 100.0;
+
+	printf("size %d, pCatch %.2f, density %.2f, pBurning %.2f, pNeighbor %.2f \n", size, pCatch, density, pBurning, pNeighbor);
 }
 
 int main(int argc, char *argv[]) {
 
+
+	int cycle = 0;
+
+	/*
+	int cur_change = 0;
+	int cum_change = 0;
+	*/
+
+
 	command_parse(argc, argv);
 
-	char **grid = malloc(s_size * sizeof(char*));
+	char grid[MAX_GRID][MAX_GRID];
 
-	for (int i = 0; i < s_size; i++) {
-
-		grid[i] = malloc(s_size * sizeof(char));
-
-	}
-
-	//printf("%d, %d \n" , d_chance, b_chance);
 	start_grid(grid, s_size, d_chance, b_chance);
-	display_grid(grid, s_size);
 
-	for (int i = 0; i < s_size; i++) {
 
-		free(grid[i]);
+	while (cycle <=  p_mode) {
+
+		if (p_mode > 0 ) {
+
+			if (cycle == 0) {
+
+				p_header(p_mode);
+
+			}
+
+			display_grid(grid, s_size, c_chance, d_chance, b_chance, n_chance);
+
+		}
+
+		cycle++;
 
 	}
 
-	free(grid);
 
+	return 0;
 }
 
 
