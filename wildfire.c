@@ -16,7 +16,7 @@
 #define EMPTY ' '
 #define TREE 'Y'
 #define BURNING '*'
-
+#define BURNED '.'
 
 static int b_chance = 10; //inital value of burn percent chance
 static int c_chance = 30; //initial value of tree catching fire percent chance
@@ -26,6 +26,7 @@ static int p_mode = 0; //number of runs to display
 //	int o_mode = 1; //default mode, overlay mode
 static int s_size = 10; //default size of the grid
 
+int counter[MAX_GRID][MAX_GRID];
 
 static void layout() {
 
@@ -193,7 +194,6 @@ void fy_shuffle(int *cells, int n) {
 	}
 }
 
-
 void start_grid(char grid[MAX_GRID][MAX_GRID], int size, int d_chance, int b_chance) {
 
 	srand(41); //random number generator
@@ -229,6 +229,9 @@ void start_grid(char grid[MAX_GRID][MAX_GRID], int size, int d_chance, int b_cha
 
 	fy_shuffle(cells, total_cell);
 
+
+	//Sets up burning characters in the grid
+
 	for (int i = 0; i < burnT_num; i++) {
 
 		int loc = cells[i];
@@ -239,7 +242,9 @@ void start_grid(char grid[MAX_GRID][MAX_GRID], int size, int d_chance, int b_cha
 
 	}
 
-	for (int i = burnT_num; i < totalT_num; i++) {
+	//Sets up tree characters in the grid
+
+	for (int i = burnT_num; i <= totalT_num; i++) {
 
 		int loc = cells[i];
 		int row = loc / size;
@@ -250,6 +255,214 @@ void start_grid(char grid[MAX_GRID][MAX_GRID], int size, int d_chance, int b_cha
 	}
 
 }
+
+int spread(char grid[MAX_GRID][MAX_GRID], int n_chance, int c_chance, int row, int col, int *total_nbr, int *burn_nbr) {
+
+
+	*total_nbr = 0;
+	*burn_nbr = 0;
+
+	int top = row + 1;
+	int bottom = row - 1;
+	int right = col + 1;
+	int left = col - 1;
+
+	if (grid[top][left] == TREE || grid[top][left] == BURNING) {
+
+    		total_nbr++;
+
+    		if (grid[top][left] == BURNING) {
+
+        		burn_nbr++;
+	    	}
+	}
+
+	if (grid[top][col] == TREE || grid[top][col] == BURNING) {
+
+		total_nbr++;
+
+		if (grid[top][col] == BURNING) {
+
+			burn_nbr++;
+    		}
+	}
+
+	if (grid[top][right] == TREE || grid[top][right] == BURNING) {
+
+	    total_nbr++;
+
+	    if (grid[top][right] == BURNING) {
+
+	        burn_nbr++;
+
+	    }
+
+	}
+
+	if (grid[row][left] == TREE || grid[row][left] == BURNING) {
+
+	    total_nbr++;
+
+	    if (grid[row][left] == BURNING) {
+
+	        burn_nbr++;
+
+	    }
+
+	}
+
+	if (grid[row][right] == TREE || grid[row][right] == BURNING) {
+
+	    total_nbr++;
+
+	    if (grid[row][right] == BURNING) {
+
+	        burn_nbr++;
+
+	    }
+
+	}
+
+	if (grid[bottom][left] == TREE || grid[bottom][left] == BURNING) {
+
+	    total_nbr++;
+
+	    if (grid[bottom][left] == BURNING) {
+
+	        burn_nbr++;
+
+	    }
+
+	}
+
+	if (grid[bottom][col] == TREE || grid[bottom][col] == BURNING) {
+
+	    total_nbr++;
+
+	    if (grid[bottom][col] == BURNING) {
+
+	        burn_nbr++;
+
+	    }
+
+	}
+
+	if (grid[bottom][right] == TREE || grid[bottom][right] == BURNING) {
+
+	    total_nbr++;
+
+	    if (grid[bottom][right] == BURNING) {
+
+	        burn_nbr++;
+
+	    }
+
+	}
+
+
+	if (*total_nbr > 0) {
+
+		float proportion_nbr = (float) *burn_nbr / *total_nbr;
+
+		float n_prob = (float) n_chance / 100;
+
+		if (proportion_nbr > n_prob) {
+
+			double rand_val = (double) rand() / RAND_MAX;
+
+			float c_prob = (float) c_chance / 100;
+
+			if (rand_val < c_prob) {
+
+				return 1;
+
+			}
+
+		}
+
+	}
+
+	return 0;
+
+}
+
+void update_grid(char grid[MAX_GRID][MAX_GRID], int size, int c_chance, int n_chance) {
+
+	char copy_grid[MAX_GRID][MAX_GRID];
+
+	int total_nbr = 0;
+
+	int burn_nbr = 0;
+
+	for (int row = 0; row < size; row++) {
+
+		for(int col = 0; col < size; col++) {
+
+			copy_grid[row][col] = grid[row][col];
+
+		}
+
+	}
+
+	for (int row = 0; row < size; row++) {
+
+		for (int col = 0; col < size; col++) {
+
+			char character = grid[row][col];
+
+			if (character == EMPTY) {
+
+				copy_grid[row][col] = EMPTY;
+
+			} else if (character == TREE) {
+
+				if (spread(copy_grid, n_chance, c_chance, row, col, &total_nbr, &burn_nbr)) {
+
+					copy_grid[row][col] = BURNING;
+					counter[row][col] = 0;
+
+				}
+
+			} else if (character == BURNING) {
+
+				counter[row][col]++;
+
+				if (counter[row][col] < 4) {
+
+					copy_grid[row][col] = BURNING;
+					counter[row][col]++;
+
+				} else {
+
+					copy_grid[row][col] = BURNED;
+
+				}
+
+
+			} else if (character == BURNED) {
+
+				copy_grid[row][col] = BURNED;
+
+			}
+
+		}
+
+	}
+
+
+	for (int row = 0; row < size; row++) {
+
+		for (int col = 0; col < size; col++) {
+
+			grid[row][col] = copy_grid[row][col];
+
+		}
+
+	}
+
+}
+
+
 
 void display_grid(char grid[MAX_GRID][MAX_GRID], int size, int c_chance, int d_chance, int b_chance, int n_chance) {
 
@@ -302,7 +515,16 @@ int main(int argc, char *argv[]) {
 
 			display_grid(grid, s_size, c_chance, d_chance, b_chance, n_chance);
 
+		} else {
+
+
+			display_grid(grid, s_size, c_chance, d_chance, b_chance, n_chance);
+
 		}
+
+		update_grid(grid, s_size, c_chance, n_chance);
+
+//		display_grid(grid, s_size, c_chance, d_chance, b_chance, n_chance);
 
 		cycle++;
 
