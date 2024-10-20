@@ -11,6 +11,8 @@
 #include <time.h>
 #include <unistd.h>
 
+#include "display.h"
+
 #define MAX_GRID 40 // maximum cell size grid
 
 #define EMPTY ' '
@@ -22,11 +24,254 @@ static int b_chance = 10; //inital value of burn percent chance
 static int c_chance = 30; //initial value of tree catching fire percent chance
 static int d_chance = 50; //initial value of density of the forest percent thance
 static int n_chance = 25; //initial value of neighbor effect that tree might catch fire
-static int p_mode = 0; //number of runs to display
+static int p_mode = -1; //number of runs to display
 //	int o_mode = 1; //default mode, overlay mode
 static int s_size = 10; //default size of the grid
 
 int counter[MAX_GRID][MAX_GRID];
+
+
+void display_grid(char grid[MAX_GRID][MAX_GRID], int size, int c_chance, int d_chance, int b_chance, int n_chance) {
+
+	for (int r = 0; r < size; r++) {
+
+		for (int c = 0; c < size; c++) {
+
+			printf("%c", grid[r][c]);
+
+		}
+
+		printf("\n");
+	}
+
+	float pCatch = (float) c_chance / 100.0;
+	float density = (float) d_chance / 100.0;
+	float pBurning = (float) b_chance / 100.0;
+	float pNeighbor = (float) n_chance / 100.0;
+
+	printf("size %d, pCatch %.2f, density %.2f, pBurning %.2f, pNeighbor %.2f \n", size, pCatch, density, pBurning, pNeighbor);
+}
+
+
+int spread(char grid[MAX_GRID][MAX_GRID], int n_chance, int c_chance, int row, int col, int *real_total_nbr, int *real_burn_nbr) {
+
+	int total_nbr = 0;
+	int burn_nbr = 0;
+
+	int top = row - 1;
+	int bottom = row + 1;
+	int right = col + 1;
+	int left = col - 1;
+
+	if (grid[top][left] == TREE || grid[top][left] == BURNING) {
+
+    		total_nbr++;
+
+    		if (grid[top][left] == BURNING) {
+
+        		burn_nbr++;
+	    	}
+	}
+
+	if (grid[top][col] == TREE || grid[top][col] == BURNING) {
+
+    		total_nbr++;
+
+		if (grid[top][col] == BURNING) {
+
+			burn_nbr++;
+    		}
+	}
+
+	if (grid[top][right] == TREE || grid[top][right] == BURNING) {
+
+	   total_nbr++;
+
+	    if (grid[top][right] == BURNING) {
+
+	        burn_nbr++;
+
+	    }
+
+	}
+
+	if (grid[row][left] == TREE || grid[row][left] == BURNING) {
+
+	    total_nbr++;
+
+	    if (grid[row][left] == BURNING) {
+
+	        burn_nbr++;
+
+	    }
+
+	}
+
+	if (grid[row][right] == TREE || grid[row][right] == BURNING) {
+
+	   total_nbr++;
+
+	    if (grid[row][right] == BURNING) {
+
+	        burn_nbr++;
+
+	    }
+
+	}
+
+	if (grid[bottom][left] == TREE || grid[bottom][left] == BURNING) {
+
+	    total_nbr++;
+
+	    if (grid[bottom][left] == BURNING) {
+
+	        burn_nbr++;
+
+	    }
+
+	}
+
+	if (grid[bottom][col] == TREE || grid[bottom][col] == BURNING) {
+
+	    total_nbr++;
+
+	    if (grid[bottom][col] == BURNING) {
+
+	       burn_nbr++;
+
+	    }
+
+	}
+
+	if (grid[bottom][right] == TREE || grid[bottom][right] == BURNING) {
+
+	    total_nbr++;
+
+	    if (grid[bottom][right] == BURNING) {
+
+	        burn_nbr++;
+
+	    }
+
+	}
+
+//	printf("%d, %d\n" , total_nbr, burn_nbr);
+
+	*real_total_nbr = total_nbr;
+	*real_burn_nbr = burn_nbr;
+
+//	printf("%d, %d \n", *real_total_nbr, *real_burn_nbr);
+
+//	printf("%d total, %d burning \n", *total_nbr, *burn_nbr);
+
+	if (*real_total_nbr > 0) {
+
+		float proportion_nbr = (float) *real_burn_nbr / *real_total_nbr;
+
+		float n_prob = (float) n_chance / 100;
+
+//		printf("%.2f, %.2f \n", proportion_nbr, n_prob);
+
+		if (proportion_nbr > n_prob) {
+
+			float rand_val = (float) rand() / RAND_MAX;
+
+			float c_prob = (float) c_chance / 100;
+
+//			printf("%.2f randomval, %.2f c probability \n", rand_val, c_prob);
+
+//			printf("\n");
+
+			if (rand_val < c_prob) {
+
+		//		printf("%.2f, %.2f \n", rand_val, c_prob);
+
+				return 1;
+
+			}
+
+		}
+	}
+
+	return 0;
+
+}
+
+
+
+void update_grid(char grid[MAX_GRID][MAX_GRID], int size, int c_chance, int n_chance) {
+
+	char copy_grid[MAX_GRID][MAX_GRID];
+
+	for (int row = 0; row < size; row++) {
+
+		for(int col = 0; col < size; col++) {
+
+			copy_grid[row][col] = grid[row][col];
+
+		}
+
+	}
+
+	for (int row = 0; row < size; row++) {
+
+		for (int col = 0; col < size; col++) {
+
+			char character = grid[row][col];
+
+			if (character == EMPTY) {
+
+				copy_grid[row][col] = EMPTY;
+
+			} else if (character == TREE) {
+
+
+				int total_nbr = 0;
+
+				int burn_nbr = 0;
+
+				if (spread(grid, n_chance, c_chance, row, col, &total_nbr, &burn_nbr)) {
+
+					copy_grid[row][col] = BURNING;
+					counter[row][col] = 0;
+
+				}
+
+			} else if (character == BURNING) {
+
+				counter[row][col]++;
+
+				if (counter[row][col] < 4) {
+
+					copy_grid[row][col] = BURNING;
+					counter[row][col]++;
+
+				} else {
+
+					copy_grid[row][col] = BURNED;
+
+				}
+
+
+			} else if (character == BURNED) {
+
+				copy_grid[row][col] = BURNED;
+
+			}
+		}
+	}
+
+	for (int row = 0; row < size; row++) {
+
+		for (int col = 0; col < size; col++) {
+
+			grid[row][col] = copy_grid[row][col];
+
+		}
+
+	}
+
+}
 
 static void layout() {
 
@@ -50,6 +295,46 @@ static void p_header(int step) {
 	printf("===========================\n");
 	printf("=== Print %d  Time Steps ===\n", step);
 	printf("===========================\n");
+
+}
+
+void o_mode(char grid[MAX_GRID][MAX_GRID], int size, int c_chance, int d_chance, int b_chance, int n_chance) {
+
+	//display_grid(grid, s_size, c_chance, d_chance, b_chance, n_chance);
+
+	clear();
+
+	update_grid(grid, size, c_chance, n_chance);
+
+	set_cur_pos(1, 1);
+
+	for(int row = 0; row < size; row++) {
+
+		for (int col = 0; col < size; col++) {
+
+			set_cur_pos(row + 1, col + 1);
+			put(grid[row][col]);
+
+		}
+
+		//put('\n');
+
+	//	set_cur_pos(1,1);
+
+	}
+
+	//display_grid(grid, s_size, c_chance, d_chance, b_chance, n_chance);
+
+	set_cur_pos(size + 1, 1);
+
+	float pCatch = (float) c_chance / 100.0;
+	float density = (float) d_chance / 100.0;
+	float pBurning = (float) b_chance / 100.0;
+	float pNeighbor = (float) n_chance / 100.0;
+
+	printf("size %d, pCatch %.2f, density %.2f, pBurning %.2f, pNeighbor %.2f \n", size, pCatch, density, pBurning, pNeighbor);
+
+	usleep(75000);
 
 }
 
@@ -271,245 +556,6 @@ void initialize_grid(char grid[MAX_GRID][MAX_GRID], int size) {
 
 */
 
-int spread(char grid[MAX_GRID][MAX_GRID], int n_chance, int c_chance, int row, int col, int *real_total_nbr, int *real_burn_nbr) {
-
-	int total_nbr = 0;
-	int burn_nbr = 0;
-
-	int top = row - 1;
-	int bottom = row + 1;
-	int right = col + 1;
-	int left = col - 1;
-
-	if (grid[top][left] == TREE || grid[top][left] == BURNING) {
-
-    		total_nbr++;
-
-    		if (grid[top][left] == BURNING) {
-
-        		burn_nbr++;
-	    	}
-	}
-
-	if (grid[top][col] == TREE || grid[top][col] == BURNING) {
-
-    		total_nbr++;
-
-		if (grid[top][col] == BURNING) {
-
-			burn_nbr++;
-    		}
-	}
-
-	if (grid[top][right] == TREE || grid[top][right] == BURNING) {
-
-	   total_nbr++;
-
-	    if (grid[top][right] == BURNING) {
-
-	        burn_nbr++;
-
-	    }
-
-	}
-
-	if (grid[row][left] == TREE || grid[row][left] == BURNING) {
-
-	    total_nbr++;
-
-	    if (grid[row][left] == BURNING) {
-
-	        burn_nbr++;
-
-	    }
-
-	}
-
-	if (grid[row][right] == TREE || grid[row][right] == BURNING) {
-
-	   total_nbr++;
-
-	    if (grid[row][right] == BURNING) {
-
-	        burn_nbr++;
-
-	    }
-
-	}
-
-	if (grid[bottom][left] == TREE || grid[bottom][left] == BURNING) {
-
-	    total_nbr++;
-
-	    if (grid[bottom][left] == BURNING) {
-
-	        burn_nbr++;
-
-	    }
-
-	}
-
-	if (grid[bottom][col] == TREE || grid[bottom][col] == BURNING) {
-
-	    total_nbr++;
-
-	    if (grid[bottom][col] == BURNING) {
-
-	       burn_nbr++;
-
-	    }
-
-	}
-
-	if (grid[bottom][right] == TREE || grid[bottom][right] == BURNING) {
-
-	    total_nbr++;
-
-	    if (grid[bottom][right] == BURNING) {
-
-	        burn_nbr++;
-
-	    }
-
-	}
-
-//	printf("%d, %d\n" , total_nbr, burn_nbr);
-
-	*real_total_nbr = total_nbr;
-	*real_burn_nbr = burn_nbr;
-
-//	printf("%d, %d \n", *real_total_nbr, *real_burn_nbr);
-
-//	printf("%d total, %d burning \n", *total_nbr, *burn_nbr);
-
-	if (*real_total_nbr > 0) {
-
-		float proportion_nbr = (float) *real_burn_nbr / *real_total_nbr;
-
-		float n_prob = (float) n_chance / 100;
-
-//		printf("%.2f, %.2f \n", proportion_nbr, n_prob);
-
-		if (proportion_nbr > n_prob) {
-
-			float rand_val = (float) rand() / RAND_MAX;
-
-			float c_prob = (float) c_chance / 100;
-
-//			printf("%.2f randomval, %.2f c probability \n", rand_val, c_prob);
-
-//			printf("\n");
-
-			if (rand_val < c_prob) {
-
-		//		printf("%.2f, %.2f \n", rand_val, c_prob);
-
-				return 1;
-
-			}
-
-		}
-	}
-
-	return 0;
-
-}
-
-void update_grid(char grid[MAX_GRID][MAX_GRID], int size, int c_chance, int n_chance) {
-
-	char copy_grid[MAX_GRID][MAX_GRID];
-
-	for (int row = 0; row < size; row++) {
-
-		for(int col = 0; col < size; col++) {
-
-			copy_grid[row][col] = grid[row][col];
-
-		}
-
-	}
-
-	for (int row = 0; row < size; row++) {
-
-		for (int col = 0; col < size; col++) {
-
-			char character = grid[row][col];
-
-			if (character == EMPTY) {
-
-				copy_grid[row][col] = EMPTY;
-
-			} else if (character == TREE) {
-
-
-				int total_nbr = 0;
-
-				int burn_nbr = 0;
-
-				if (spread(grid, n_chance, c_chance, row, col, &total_nbr, &burn_nbr)) {
-
-					copy_grid[row][col] = BURNING;
-					counter[row][col] = 0;
-
-				}
-
-			} else if (character == BURNING) {
-
-				counter[row][col]++;
-
-				if (counter[row][col] < 4) {
-
-					copy_grid[row][col] = BURNING;
-					counter[row][col]++;
-
-				} else {
-
-					copy_grid[row][col] = BURNED;
-
-				}
-
-
-			} else if (character == BURNED) {
-
-				copy_grid[row][col] = BURNED;
-
-			}
-		}
-	}
-
-	for (int row = 0; row < size; row++) {
-
-		for (int col = 0; col < size; col++) {
-
-			grid[row][col] = copy_grid[row][col];
-
-		}
-
-	}
-
-}
-
-void display_grid(char grid[MAX_GRID][MAX_GRID], int size, int c_chance, int d_chance, int b_chance, int n_chance) {
-
-	for (int r = 0; r < size; r++) {
-
-		for (int c = 0; c < size; c++) {
-
-			printf("%c", grid[r][c]);
-
-		}
-
-		printf("\n");
-	}
-
-	float pCatch = (float) c_chance / 100.0;
-	float density = (float) d_chance / 100.0;
-	float pBurning = (float) b_chance / 100.0;
-	float pNeighbor = (float) n_chance / 100.0;
-
-	printf("size %d, pCatch %.2f, density %.2f, pBurning %.2f, pNeighbor %.2f \n", size, pCatch, density, pBurning, pNeighbor);
-}
-
 int fire_checker(char grid[MAX_GRID][MAX_GRID], int size) {
 
 	for (int row = 0; row < size; row++) {
@@ -545,12 +591,34 @@ int main(int argc, char *argv[]) {
 
 	char grid[MAX_GRID][MAX_GRID];
 
+	printf("%d\n" , p_mode);
+
 	//start_grid(grid, s_size, d_chance, b_chance);
 
 	initialize_grid(grid, s_size, d_chance, b_chance);
 
+	while  (p_mode == -1) {
 
-	while (cycle <= p_mode) {
+//		o_mode(grid, s_size, c_chance, d_chance, b_chance, n_chance);
+
+		if (fire_checker(grid, s_size)) {
+
+			//set_cur_pos(1, 1);
+
+			o_mode(grid, s_size, c_chance, d_chance, b_chance, n_chance);
+
+			//update_grid(grid, s_size, c_chance, n_chance);
+
+		} else {
+
+			printf("Fires are out\n");
+
+			break;
+
+		}
+	}
+
+	while (cycle < p_mode) {
 
 		if (p_mode > 0 ) {
 
@@ -564,7 +632,6 @@ int main(int argc, char *argv[]) {
 
 		} else {
 
-
 			display_grid(grid, s_size, c_chance, d_chance, b_chance, n_chance);
 
 		}
@@ -574,7 +641,7 @@ int main(int argc, char *argv[]) {
 		if (fire_checker(grid, s_size)) {
 
 //			update_grid(grid, s_size, c_chance, n_chance);
-
+			continue;
 
 		} else {
 
@@ -590,7 +657,6 @@ int main(int argc, char *argv[]) {
 		cycle++;
 
 	}
-
 
 	return 0;
 }
