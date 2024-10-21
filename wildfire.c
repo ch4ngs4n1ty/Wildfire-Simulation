@@ -1,4 +1,3 @@
-
 // file: wildfire.c
 // wildfire.c fire game
 // author: Ethan Chang
@@ -327,8 +326,6 @@ void o_mode(char grid[MAX_GRID][MAX_GRID], int size, int c_chance, int d_chance,
 
 	fflush(stdout);
 
-//	usleep(750000);
-
 }
 
 static void command_parse(int argc, char *argv[]) {
@@ -470,7 +467,7 @@ void fy_shuffle(int *cells, int n) {
 
 void initialize_grid(char grid[MAX_GRID][MAX_GRID], int size, int d_chance, int b_chance) {
 
-	srand(41); //random number generator
+//	srand(41); //random number generator
 
 	float d_prob = (float) d_chance/100; // percentage chance of density
 
@@ -482,54 +479,46 @@ void initialize_grid(char grid[MAX_GRID][MAX_GRID], int size, int d_chance, int 
 
 	int burnT_num = (int)(b_prob * treeT_num);
 
-	//int totalT_num = treeT_num;
+	int cells[total_cell]; // max cell array
 
-	for (int r = 0; r < size; ++r) {
+	 for (int i = 0; i < total_cell; i++) {
 
-		for (int c = 0; c < size; ++c) {
+		if (i < burnT_num) {
 
-			grid[r][c] = EMPTY;
+			cells[i] = BURNING;
+
+		} else if (i < treeT_num) {
+
+			cells[i] = TREE;
+
+		} else {
+
+			cells[i] = EMPTY;
 
 		}
-	}
 
-	int cells[MAX_GRID * MAX_GRID]; // max cell array
+    	}
 
-	for (int i = 0; i < total_cell; ++i) {
+    	fy_shuffle(cells, total_cell);
 
-		cells[i] = i;
+	int i = 0;
 
-	}
+    	for (int r = 0; r < size; r++) {
 
-	fy_shuffle(cells, total_cell);
+		for (int c = 0; c < size; c++) {
 
+			grid[r][c] = cells[i++];
 
-	//Sets up burning characters in the grid
-
-	for (int i = 0; i <= treeT_num; i++) {
-
-		int loc = cells[i];
-		int row = loc / size;
-		int col = loc % size;
-
-		grid[row][col] = TREE;
-
-	}
-
-	//Sets up tree characters in the grid
-
-	for (int i = 0; i < burnT_num; i++) {
-
-		int loc = cells[i];
-		int row = loc / size;
-		int col = loc % size;
-
-		grid[row][col] = BURNING;
+		}
 
 	}
 
 }
-/**
+
+/*
+
+}
+
 void initialize_grid(char grid[MAX_GRID][MAX_GRID], int size) {
     // Manually initialize the grid based on your example
     char temp_grid[MAX_GRID][MAX_GRID] = {
