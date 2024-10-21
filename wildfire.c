@@ -1,3 +1,4 @@
+
 // file: wildfire.c
 // wildfire.c fire game
 // author: Ethan Chang
@@ -24,7 +25,7 @@ static int b_chance = 10; //inital value of burn percent chance
 static int c_chance = 30; //initial value of tree catching fire percent chance
 static int d_chance = 50; //initial value of density of the forest percent thance
 static int n_chance = 25; //initial value of neighbor effect that tree might catch fire
-static int p_mode = -1; //number of runs to display
+static int p_mode = 0; //number of runs to display
 //	int o_mode = 1; //default mode, overlay mode
 static int s_size = 10; //default size of the grid
 
@@ -286,7 +287,7 @@ static void layout() {
 	fprintf(stderr, "\n");
 
 }
-/*
+
 static void p_header(int step) {
 
 	printf("===========================\n");
@@ -296,7 +297,7 @@ static void p_header(int step) {
 	printf("===========================\n");
 
 }
-*/
+
 
 
 void o_mode(char grid[MAX_GRID][MAX_GRID], int size, int c_chance, int d_chance, int b_chance, int n_chance) {
@@ -571,7 +572,7 @@ int main(int argc, char *argv[]) {
 
 	srand(41);
 
-//	int cycle = 0;
+	//int cycle = 0;
 
 	/*
 	int cur_change = 0;
@@ -585,12 +586,8 @@ int main(int argc, char *argv[]) {
 //	printf("%d\n" , p_mode);
 
 	//start_grid(grid, s_size, d_chance, b_chance);
-
-	initialize_grid(grid, s_size, d_chance, b_chance);
-
-	clear();
-
-	while (1) {
+/*
+	while () {
 
 		set_cur_pos(1, 0);
 
@@ -602,20 +599,19 @@ int main(int argc, char *argv[]) {
 
 //		clear();
 
-//		if (fire_checker(grid, s_size)) {
+		if (!fire_checker(grid, s_size)) {
 
 //			display_grid(grid, s_size, c_chance, d_chance, b_chance, n_chance);
-//			o_mode(grid, s_size, c_chance, d_chance, b_chance, n_chance);
-
-//			printf("Fires are out\n");
+			o_mode(grid, s_size, c_chance, d_chance, b_chance, n_chance);
+			printf("Fires are out\n");
 //
-//			break;
+			break;
 
-//		}
+		}
 
 
 	}
-/*
+
 
 	while (cycle < p_mode) {
 
@@ -656,7 +652,71 @@ int main(int argc, char *argv[]) {
 		cycle++;
 
 	}
+
 */
+
+
+	if (p_mode > 0) {
+
+		int cycle = 0;
+
+		if (cycle == 0) {
+
+			p_header(p_mode);
+
+		}
+
+		initialize_grid(grid, s_size, d_chance, b_chance);
+
+        	update_grid(grid, s_size, c_chance, n_chance);
+
+		for (int i = 0; i <= p_mode; i++) {
+
+			display_grid(grid, s_size, c_chance, d_chance, b_chance, n_chance);
+
+        		update_grid(grid, s_size, c_chance, n_chance);
+
+	        	if (!fire_checker(grid, s_size)) {
+
+				display_grid(grid, s_size, c_chance, d_chance, b_chance, n_chance);
+
+        	    		printf("Fires are out\n");
+	            		break;
+        		}
+
+			cycle++;
+
+		}
+
+	} else {
+
+		initialize_grid(grid, s_size, d_chance, b_chance);
+
+		clear();
+
+		while (1) {
+
+			set_cur_pos(1, 0);
+
+		        o_mode(grid, s_size, c_chance, d_chance, b_chance, n_chance);
+
+		        usleep(750000);
+
+		        update_grid(grid, s_size, c_chance, n_chance);
+
+		        if (!fire_checker(grid, s_size)) {
+
+
+				o_mode(grid, s_size, c_chance, d_chance, b_chance, n_chance);
+
+		        	printf("Fires are out\n");
+
+				break;
+
+        		}
+
+		}
+	}
 
 	return 0;
 }
