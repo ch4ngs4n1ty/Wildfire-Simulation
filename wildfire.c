@@ -52,7 +52,6 @@ void display_grid(char grid[MAX_GRID][MAX_GRID], int size, int c_chance, int d_c
 	printf("size %d, pCatch %.2f, density %.2f, pBurning %.2f, pNeighbor %.2f \n", size, pCatch, density, pBurning, pNeighbor);
 }
 
-
 int spread(char grid[MAX_GRID][MAX_GRID], int n_chance, int c_chance, int row, int col, int *real_total_nbr, int *real_burn_nbr) {
 
 	int total_nbr = 0;
@@ -287,7 +286,7 @@ static void layout() {
 	fprintf(stderr, "\n");
 
 }
-
+/*
 static void p_header(int step) {
 
 	printf("===========================\n");
@@ -297,35 +296,26 @@ static void p_header(int step) {
 	printf("===========================\n");
 
 }
+*/
+
 
 void o_mode(char grid[MAX_GRID][MAX_GRID], int size, int c_chance, int d_chance, int b_chance, int n_chance) {
 
-	//display_grid(grid, s_size, c_chance, d_chance, b_chance, n_chance);
-
-	clear();
-
-	update_grid(grid, size, c_chance, n_chance);
-
-	set_cur_pos(1, 1);
+	set_cur_pos(1, 0);
 
 	for(int row = 0; row < size; row++) {
 
 		for (int col = 0; col < size; col++) {
 
-			set_cur_pos(row + 1, col + 1);
 			put(grid[row][col]);
 
 		}
 
-		//put('\n');
-
-	//	set_cur_pos(1,1);
+		put('\n');
 
 	}
 
-	//display_grid(grid, s_size, c_chance, d_chance, b_chance, n_chance);
-
-	set_cur_pos(size + 1, 1);
+	set_cur_pos(size + 1, 0);
 
 	float pCatch = (float) c_chance / 100.0;
 	float density = (float) d_chance / 100.0;
@@ -334,7 +324,9 @@ void o_mode(char grid[MAX_GRID][MAX_GRID], int size, int c_chance, int d_chance,
 
 	printf("size %d, pCatch %.2f, density %.2f, pBurning %.2f, pNeighbor %.2f \n", size, pCatch, density, pBurning, pNeighbor);
 
-	usleep(75000);
+	fflush(stdout);
+
+//	usleep(750000);
 
 }
 
@@ -579,44 +571,51 @@ int main(int argc, char *argv[]) {
 
 	srand(41);
 
-	int cycle = 0;
+//	int cycle = 0;
 
 	/*
 	int cur_change = 0;
 	int cum_change = 0;
 	*/
 
-
 	command_parse(argc, argv);
 
 	char grid[MAX_GRID][MAX_GRID];
 
-	printf("%d\n" , p_mode);
+//	printf("%d\n" , p_mode);
 
 	//start_grid(grid, s_size, d_chance, b_chance);
 
 	initialize_grid(grid, s_size, d_chance, b_chance);
 
-	while  (p_mode == -1) {
+	clear();
 
-//		o_mode(grid, s_size, c_chance, d_chance, b_chance, n_chance);
+	while (1) {
 
-		if (fire_checker(grid, s_size)) {
+		set_cur_pos(1, 0);
 
-			//set_cur_pos(1, 1);
+		o_mode(grid, s_size, c_chance, d_chance, b_chance, n_chance);
 
-			o_mode(grid, s_size, c_chance, d_chance, b_chance, n_chance);
+		usleep(750000);
 
-			//update_grid(grid, s_size, c_chance, n_chance);
+		update_grid(grid, s_size, c_chance, n_chance);
 
-		} else {
+//		clear();
 
-			printf("Fires are out\n");
+//		if (fire_checker(grid, s_size)) {
 
-			break;
+//			display_grid(grid, s_size, c_chance, d_chance, b_chance, n_chance);
+//			o_mode(grid, s_size, c_chance, d_chance, b_chance, n_chance);
 
-		}
+//			printf("Fires are out\n");
+//
+//			break;
+
+//		}
+
+
 	}
+/*
 
 	while (cycle < p_mode) {
 
@@ -657,6 +656,7 @@ int main(int argc, char *argv[]) {
 		cycle++;
 
 	}
+*/
 
 	return 0;
 }
