@@ -31,168 +31,6 @@ static int s_size = 10; //default size of the grid
 int counter[MAX_GRID][MAX_GRID];
 
 
-static void layout() {
-
-	fprintf(stderr, "\n");
-	fprintf(stderr, "Simulation Configuration Options\n");
-	fprintf(stderr, " -H  # View simulation options and quit.\n");
-	fprintf(stderr, " -bN # proportion of trees that are already burning. 0 < N < 101.\n");
-	fprintf(stderr, " -cN # probability that a tree will catch fire. 0 < N < 101.\n");
-	fprintf(stderr, " -dN # density/proportion of trees in the grid. 0 < N < 101.\n");
-	fprintf(stderr, " -nN # proportion of neighbors that influence a tree catching fire. -1 < N < 101.\n");
-	fprintf(stderr, " -pN # number of states to print before quitting. -1 < N < ...\n");
-	fprintf(stderr, " -sN # simulation grid size. 4 < n < 41.\n");
-	fprintf(stderr, "\n");
-
-
-}
-
-static void command_parse(int argc, char *argv[]) {
-
-	int opt;
-	int tmpsize = 0;
-
-	while ( ( opt = getopt( argc, argv, "Hs:b:c:d:n:p:s") ) != -1) {
-
-		switch (opt) {
-
-		case 'H': // outputs the Simulation Configuration Options
-
-			fprintf(stderr, "usage: wildfire [options]\n");
-			fprintf(stderr, "By default, the simulation runs in overlay display mode.\n");
-			fprintf(stderr, "The -pN option makes the simulation run in print mode to print N states.\n");
-
-			layout();
-
-			exit(0); //stops running after help layout
-
-			break;
-
-		case 'b': // gets grid population that is burning at start of simulataion
-
-			tmpsize = (int) strtol(optarg, NULL, 10);
-			b_chance = tmpsize;
-
-			if (b_chance < 1 || b_chance > 100) {
-
-				exit(EXIT_FAILURE);
-
-			}
-
-			tmpsize = 0;
-
-			break;
-
-
-		case 'c': // probability of tree catching fire, percentage chance
-
-			tmpsize = (int) strtol(optarg, NULL, 10);
-			c_chance = tmpsize;
-
-			if (c_chance < 1 || c_chance > 100) {
-
-				exit(EXIT_FAILURE);
-
-			}
-
-			break;
-
-
-		case 'd':
-			tmpsize = (int) strtol(optarg, NULL, 10);
-			d_chance = tmpsize;
-
-			if (d_chance < 1 || d_chance > 100) {
-
-				exit(EXIT_FAILURE);
-			}
-
-			tmpsize = 0;
-
-			break;
-
-		case 'n':
-
-			tmpsize = (int) strtol(optarg, NULL, 10);
-
-			if (tmpsize >= 0 && tmpsize <= 100) {
-
-				n_chance = tmpsize;
-
-			} else {
-
-				exit(EXIT_FAILURE);
-
-			}
-
-			tmpsize = 0;
-
-			break;
-
-		case 'p':
-
-			tmpsize = (int) strtol(optarg, NULL, 10);
-
-			if (p_mode >= 0) {
-
-				p_mode = tmpsize;
-
-			} else {
-
-				exit(EXIT_FAILURE);
-
-			}
-
-			tmpsize = 0;
-
-			break;
-
-		case 's':
-
-			tmpsize = (int) strtol(optarg, NULL, 10);
-
-			if (tmpsize >= 5 && tmpsize <= MAX_GRID) {
-
-				s_size = tmpsize;
-
-			} else {
-
-				exit(EXIT_FAILURE);
-
-			}
-
-			break;
-
-		default:
-
-			exit(EXIT_FAILURE);
-
-		}
-	}
-}
-
-void display_grid(char grid[MAX_GRID][MAX_GRID], int size, int c_chance, int d_chance, int b_chance, int n_chance, int cycle, int current_change, int cumulative_change) {
-
-	for (int r = 0; r < size; r++) {
-
-		for (int c = 0; c < size; c++) {
-
-			printf("%c", grid[r][c]);
-
-		}
-
-		printf("\n");
-	}
-
-	float pCatch = (float) c_chance / 100.0;
-	float density = (float) d_chance / 100.0;
-	float pBurning = (float) b_chance / 100.0;
-	float pNeighbor = (float) n_chance / 100.0;
-
-	printf("size %d, pCatch %.2f, density %.2f, pBurning %.2f, pNeighbor %.2f \n", size, pCatch, density, pBurning, pNeighbor);
-	printf("cycle %d, current changes %d, cumulative changes %d.\n", cycle, current_change, cumulative_change);
-}
-
 int spread(char grid[MAX_GRID][MAX_GRID], int n_chance, int c_chance, int row, int col, int *real_total_nbr, int *real_burn_nbr) {
 
 	int total_nbr = 0;
@@ -338,10 +176,184 @@ int spread(char grid[MAX_GRID][MAX_GRID], int n_chance, int c_chance, int row, i
 }
 
 
+static void layout() {
+
+	fprintf(stderr, "\n");
+	fprintf(stderr, "Simulation Configuration Options\n");
+	fprintf(stderr, " -H  # View simulation options and quit.\n");
+	fprintf(stderr, " -bN # proportion of trees that are already burning. 0 < N < 101.\n");
+	fprintf(stderr, " -cN # probability that a tree will catch fire. 0 < N < 101.\n");
+	fprintf(stderr, " -dN # density/proportion of trees in the grid. 0 < N < 101.\n");
+	fprintf(stderr, " -nN # proportion of neighbors that influence a tree catching fire. -1 < N < 101.\n");
+	fprintf(stderr, " -pN # number of states to print before quitting. -1 < N < ...\n");
+	fprintf(stderr, " -sN # simulation grid size. 4 < n < 41.\n");
+	fprintf(stderr, "\n");
+
+}
+
+
+static void p_header(int step) {
+
+	printf("===========================\n");
+	printf("======== Wildfire =========\n");
+	printf("===========================\n");
+	printf("=== Print %d  Time Steps ===\n", step);
+	printf("===========================\n");
+
+}
+
+static void command_parse(int argc, char *argv[]) {
+
+	int opt;
+	int tmpsize = 0;
+
+	while ( ( opt = getopt( argc, argv, "Hs:b:c:d:n:p:s") ) != -1) {
+
+		switch (opt) {
+
+		case 'H': // outputs the Simulation Configuration Options
+
+			fprintf(stderr, "usage: wildfire [options]\n");
+			fprintf(stderr, "By default, the simulation runs in overlay display mode.\n");
+			fprintf(stderr, "The -pN option makes the simulation run in print mode to print N states.\n");
+
+			layout();
+
+			exit(0); //stops running after help layout
+
+			break;
+
+		case 'b': // gets grid population that is burning at start of simulataion
+
+			tmpsize = (int) strtol(optarg, NULL, 10);
+			b_chance = tmpsize;
+
+			if (b_chance < 1 || b_chance > 100) {
+
+				exit(EXIT_FAILURE);
+
+			}
+
+			tmpsize = 0;
+
+			break;
+
+
+		case 'c': // probability of tree catching fire, percentage chance
+
+			tmpsize = (int) strtol(optarg, NULL, 10);
+			c_chance = tmpsize;
+
+			if (c_chance < 1 || c_chance > 100) {
+
+				exit(EXIT_FAILURE);
+
+			}
+
+			break;
+
+
+		case 'd':
+
+			tmpsize = (int) strtol(optarg, NULL, 10);
+			d_chance = tmpsize;
+
+			if (d_chance < 1 || d_chance > 100) {
+
+				exit(EXIT_FAILURE);
+			}
+
+			tmpsize = 0;
+
+			break;
+
+		case 'n':
+
+			tmpsize = (int) strtol(optarg, NULL, 10);
+
+			if (tmpsize >= 0 && tmpsize <= 100) {
+
+				n_chance = tmpsize;
+
+			} else {
+
+				exit(EXIT_FAILURE);
+
+			}
+
+			tmpsize = 0;
+
+			break;
+
+		case 'p':
+
+			tmpsize = (int) strtol(optarg, NULL, 10);
+
+			if (p_mode >= 0) {
+
+				p_mode = tmpsize;
+
+			} else {
+
+				exit(EXIT_FAILURE);
+
+			}
+
+			tmpsize = 0;
+
+			break;
+
+		case 's':
+
+			tmpsize = (int) strtol(optarg, NULL, 10);
+
+			if (tmpsize >= 5 && tmpsize <= MAX_GRID) {
+
+				s_size = tmpsize;
+
+			} else {
+
+				exit(EXIT_FAILURE);
+
+			}
+
+			break;
+
+		default:
+
+			exit(EXIT_FAILURE);
+
+		}
+	}
+}
+
+void display_grid(char grid[MAX_GRID][MAX_GRID], int size, int c_chance, int d_chance, int b_chance, int n_chance, int cycle, int current_change, int cumulative_change) {
+
+	for (int r = 0; r < size; r++) {
+
+		for (int c = 0; c < size; c++) {
+
+			printf("%c", grid[r][c]);
+
+		}
+
+		printf("\n");
+	}
+
+	float pCatch = (float) c_chance / 100.0;
+	float density = (float) d_chance / 100.0;
+	float pBurning = (float) b_chance / 100.0;
+	float pNeighbor = (float) n_chance / 100.0;
+
+	printf("size %d, pCatch %.2f, density %.2f, pBurning %.2f, pNeighbor %.2f \n", size, pCatch, density, pBurning, pNeighbor);
+	printf("cycle %d, current changes %d, cumulative changes %d.\n", cycle, current_change, cumulative_change);
+
+}
+
 
 void update_grid(char grid[MAX_GRID][MAX_GRID], int size, int c_chance, int n_chance, int *current_change) {
 
-	//*current_change = 0;
+	*current_change = 0;
 
 	char copy_grid[MAX_GRID][MAX_GRID];
 
@@ -388,7 +400,6 @@ void update_grid(char grid[MAX_GRID][MAX_GRID], int size, int c_chance, int n_ch
 
 					copy_grid[row][col] = BURNING;
 					counter[row][col]++;
-					(*current_change)++;
 
 				} else {
 
@@ -418,19 +429,7 @@ void update_grid(char grid[MAX_GRID][MAX_GRID], int size, int c_chance, int n_ch
 
 }
 
-static void p_header(int step) {
-
-	printf("===========================\n");
-	printf("======== Wildfire =========\n");
-	printf("===========================\n");
-	printf("=== Print %d  Time Steps ===\n", step);
-	printf("===========================\n");
-
-}
-
-
-
-void o_mode(char grid[MAX_GRID][MAX_GRID], int size, int c_chance, int d_chance, int b_chance, int n_chance) {
+void o_mode(char grid[MAX_GRID][MAX_GRID], int size, int c_chance, int d_chance, int b_chance, int n_chance, int cycle, int current_change, int cumulative_change) {
 
 	set_cur_pos(1, 0);
 
@@ -454,7 +453,7 @@ void o_mode(char grid[MAX_GRID][MAX_GRID], int size, int c_chance, int d_chance,
 	float pNeighbor = (float) n_chance / 100.0;
 
 	printf("size %d, pCatch %.2f, density %.2f, pBurning %.2f, pNeighbor %.2f \n", size, pCatch, density, pBurning, pNeighbor);
-
+	printf("cycle %d, current changes %d, cumulative changes %d.\n", cycle, current_change, cumulative_change);
 
 }
 
@@ -542,6 +541,8 @@ int main(int argc, char *argv[]) {
 
 	srand(41);
 
+	int cycle = 0;
+
 	int current_change = 0;
 	int cumulative_change = 0;
 
@@ -551,21 +552,22 @@ int main(int argc, char *argv[]) {
 
 	if (p_mode > 0) {
 
-		int cycle = 0;
 
 		if (cycle == 0) {
 
 			p_header(p_mode);
 
+			initialize_grid(grid, s_size, d_chance, b_chance);
+
+			display_grid(grid, s_size, c_chance, d_chance, b_chance, n_chance, cycle, current_change, cumulative_change);
+
+        		update_grid(grid, s_size, c_chance, n_chance, &current_change);
+
+			cumulative_change += current_change;
+
 		}
 
-		initialize_grid(grid, s_size, d_chance, b_chance);
-
-        	update_grid(grid, s_size, c_chance, n_chance, &current_change);
-
-		cumulative_change += current_change;
-
-		for (int i = 0; i <= p_mode; i++) {
+		for (int i = 0; i < p_mode; i++) {
 
 			display_grid(grid, s_size, c_chance, d_chance, b_chance, n_chance, cycle, current_change, cumulative_change);
 
@@ -574,6 +576,10 @@ int main(int argc, char *argv[]) {
 			cumulative_change += current_change;
 
 	        	if (!fire_checker(grid, s_size)) {
+
+				cycle++;
+
+				//cumulative_change += current_change;
 
 				display_grid(grid, s_size, c_chance, d_chance, b_chance, n_chance, cycle, current_change, cumulative_change);
 
@@ -584,7 +590,6 @@ int main(int argc, char *argv[]) {
 
 			cycle++;
 
-			current_change = 0;
 		}
 
 	} else {
@@ -597,16 +602,21 @@ int main(int argc, char *argv[]) {
 
 			set_cur_pos(1, 0);
 
-		        o_mode(grid, s_size, c_chance, d_chance, b_chance, n_chance);
+			o_mode(grid, s_size, c_chance, d_chance, b_chance, n_chance, cycle, current_change, cumulative_change);
+
+//		        o_mode(grid, s_size, c_chance, d_chance, b_chance, n_chance);
 
 		        usleep(750000);
 
 		        update_grid(grid, s_size, c_chance, n_chance, &current_change);
 
+			cumulative_change += current_change;
+
 		        if (!fire_checker(grid, s_size)) {
 
+				o_mode(grid, s_size, c_chance, d_chance, b_chance, n_chance, cycle, current_change, cumulative_change);
 
-				o_mode(grid, s_size, c_chance, d_chance, b_chance, n_chance);
+//				o_mode(grid, s_size, c_chance, d_chance, b_chance, n_chance);
 
 		        	printf("Fires are out\n");
 
@@ -614,10 +624,13 @@ int main(int argc, char *argv[]) {
 
         		}
 
+			cycle++;
+
 		}
 	}
 
 	return 0;
+
 }
 
 
