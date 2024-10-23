@@ -25,11 +25,9 @@ static int c_chance = 30; //initial value of tree catching fire percent chance
 static int d_chance = 50; //initial value of density of the forest percent thance
 static int n_chance = 25; //initial value of neighbor effect that tree might catch fire
 static int p_mode = 0; //number of runs to display
-//	int o_mode = 1; //default mode, overlay mode
 static int s_size = 10; //default size of the grid
 
 int counter[MAX_GRID][MAX_GRID];
-
 
 int spread(char grid[MAX_GRID][MAX_GRID], int n_chance, int c_chance, int row, int col, int *real_total_nbr, int *real_burn_nbr) {
 
@@ -178,15 +176,19 @@ int spread(char grid[MAX_GRID][MAX_GRID], int n_chance, int c_chance, int row, i
 
 static void layout() {
 
+	fprintf(stderr, "usage: wildfire [options]\n");
+	fprintf(stderr, "By default, the simulation runs in overlay display mode.\n");
+	fprintf(stderr, "The -pN option makes the simulation run in print mode to print N states.\n");
+
 	fprintf(stderr, "\n");
-	fprintf(stderr, "Simulation Configuration Options\n");
+	fprintf(stderr, "Simulation Configuration Options:\n");
 	fprintf(stderr, " -H  # View simulation options and quit.\n");
 	fprintf(stderr, " -bN # proportion of trees that are already burning. 0 < N < 101.\n");
 	fprintf(stderr, " -cN # probability that a tree will catch fire. 0 < N < 101.\n");
-	fprintf(stderr, " -dN # density/proportion of trees in the grid. 0 < N < 101.\n");
+	fprintf(stderr, " -dN # density: the proportion of trees in the grid. 0 < N < 101.\n");
 	fprintf(stderr, " -nN # proportion of neighbors that influence a tree catching fire. -1 < N < 101.\n");
 	fprintf(stderr, " -pN # number of states to print before quitting. -1 < N < ...\n");
-	fprintf(stderr, " -sN # simulation grid size. 4 < n < 41.\n");
+	fprintf(stderr, " -sN # simulation grid size. 4 < N < 41.\n");
 	fprintf(stderr, "\n");
 
 }
@@ -202,6 +204,14 @@ static void p_header(int step) {
 
 }
 
+
+/*
+* Gets the user inputs and stores value while command parsing
+*
+*
+*
+*/
+
 static void command_parse(int argc, char *argv[]) {
 
 	int opt;
@@ -213,10 +223,6 @@ static void command_parse(int argc, char *argv[]) {
 
 		case 'H': // outputs the Simulation Configuration Options
 
-			fprintf(stderr, "usage: wildfire [options]\n");
-			fprintf(stderr, "By default, the simulation runs in overlay display mode.\n");
-			fprintf(stderr, "The -pN option makes the simulation run in print mode to print N states.\n");
-
 			layout();
 
 			exit(0); //stops running after help layout
@@ -226,10 +232,15 @@ static void command_parse(int argc, char *argv[]) {
 		case 'b': // gets grid population that is burning at start of simulataion
 
 			tmpsize = (int) strtol(optarg, NULL, 10);
-			b_chance = tmpsize;
 
-			if (b_chance < 1 || b_chance > 100) {
+			if (tmpsize < 1 && tmpsize > 100) {
 
+				b_chance = tmpsize;
+
+			} else {
+
+				fprintf(stderr, "(-bN) proportion already burning must be an integer in [1...100].\n");
+				layout();
 				exit(EXIT_FAILURE);
 
 			}
@@ -242,10 +253,15 @@ static void command_parse(int argc, char *argv[]) {
 		case 'c': // probability of tree catching fire, percentage chance
 
 			tmpsize = (int) strtol(optarg, NULL, 10);
-			c_chance = tmpsize;
 
-			if (c_chance < 1 || c_chance > 100) {
+			if (tmpsize >= 1 && tmpsize <= 100) {
 
+				c_chance = tmpsize;
+
+			} else {
+
+				fprintf(stderr, "(-cN) probability a tree will catch fire must be an integer in [1...100].\n");
+				layout();
 				exit(EXIT_FAILURE);
 
 			}
@@ -256,11 +272,17 @@ static void command_parse(int argc, char *argv[]) {
 		case 'd':
 
 			tmpsize = (int) strtol(optarg, NULL, 10);
-			d_chance = tmpsize;
 
-			if (d_chance < 1 || d_chance > 100) {
+			if (tmpsize >= 1 && tmpsize <= 100) {
 
+				d_chance = tmpsize;
+
+			} else {
+
+				fprintf(stderr, "(-dN) density of trees in the grid must be an integer in [1...100].\n");
+				layout();
 				exit(EXIT_FAILURE);
+
 			}
 
 			tmpsize = 0;
@@ -277,6 +299,8 @@ static void command_parse(int argc, char *argv[]) {
 
 			} else {
 
+				fprintf(stderr, "(-nN) %%neighbors influence catching fire must be an integer in [0...100].\n");
+				layout();
 				exit(EXIT_FAILURE);
 
 			}
@@ -289,12 +313,14 @@ static void command_parse(int argc, char *argv[]) {
 
 			tmpsize = (int) strtol(optarg, NULL, 10);
 
-			if (p_mode >= 0) {
+			if (tmpsize >= 0) {
 
 				p_mode = tmpsize;
 
 			} else {
 
+				fprintf(stderr, "(-pN) number of states to print must be an integer in [0...10000].\n");
+				layout();
 				exit(EXIT_FAILURE);
 
 			}
@@ -313,6 +339,8 @@ static void command_parse(int argc, char *argv[]) {
 
 			} else {
 
+				fprintf(stderr, "(-sN) simulation grid size must be an integer in [5...40].\n");
+				layout();
 				exit(EXIT_FAILURE);
 
 			}
@@ -321,7 +349,7 @@ static void command_parse(int argc, char *argv[]) {
 
 		default:
 
-			exit(EXIT_FAILURE);
+			break;
 
 		}
 	}
