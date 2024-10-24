@@ -1,5 +1,5 @@
 // file: wildfire.c
-// wildfire.c fire game
+// decsription: takes the inputs from users and starts the fire simulation
 // author: Ethan Chang
 
 #define _DEFAULT_SOURCE
@@ -27,145 +27,143 @@ static int n_chance = 25; //initial value of neighbor effect that tree might cat
 static int p_mode = 0; //number of runs to display
 static int s_size = 10; //default size of the grid
 
-int counter[MAX_GRID][MAX_GRID];
+int counter[MAX_GRID][MAX_GRID]; //used to count seconds for each burning tree
 
-int spread(char grid[MAX_GRID][MAX_GRID], int n_chance, int c_chance, int row, int col, int *real_total_nbr, int *real_burn_nbr) {
+/**
+* Decides whether this cell gets to be burned in fire or not
+*
+* @param grid: current grid of containing current cells
+* @param n_chance: neighbor effect chance of tree catching fire
+* @param c_chance: chance of tree catching fire
+* @param row: the row of the cell
+* @param col: the col of the cell
+* @param total_nbr: number of total neighbors
+* @param burn_nbr: number of burning neighbors
+*
+* @return: 1 if the tree is burnable, 0 if the tree is not burnable
+*/
+int spread(char grid[MAX_GRID][MAX_GRID], int n_chance, int c_chance, int row, int col, int *total_nbr, int *burn_nbr) {
 
-	int total_nbr = 0;
-	int burn_nbr = 0;
+	int total_count = 0;
+	int burn_count = 0;
 
-	int top = row - 1;
-	int bottom = row + 1;
-	int right = col + 1;
-	int left = col - 1;
+	int top = row - 1; //top cell
+	int bottom = row + 1; //bottom cell
+	int right = col + 1; //right cell
+	int left = col - 1; //left cell
 
-	if (grid[top][left] == TREE || grid[top][left] == BURNING) {
+	if (grid[top][left] == TREE || grid[top][left] == BURNING) { //checks the top left coordinate
 
-    		total_nbr++;
+    		total_count++;
 
     		if (grid[top][left] == BURNING) {
 
-        		burn_nbr++;
+        		burn_count++;
 	    	}
 	}
 
-	if (grid[top][col] == TREE || grid[top][col] == BURNING) {
+	if (grid[top][col] == TREE || grid[top][col] == BURNING) { //checks the top column coordinate
 
-    		total_nbr++;
+    		total_count++;
 
 		if (grid[top][col] == BURNING) {
 
-			burn_nbr++;
+			burn_count++;
     		}
 	}
 
-	if (grid[top][right] == TREE || grid[top][right] == BURNING) {
+	if (grid[top][right] == TREE || grid[top][right] == BURNING) { //checks the top right coordinate
 
-	   total_nbr++;
+		total_count++;
 
-	    if (grid[top][right] == BURNING) {
+		if (grid[top][right] == BURNING) {
 
-	        burn_nbr++;
+	      		burn_count++;
 
-	    }
-
-	}
-
-	if (grid[row][left] == TREE || grid[row][left] == BURNING) {
-
-	    total_nbr++;
-
-	    if (grid[row][left] == BURNING) {
-
-	        burn_nbr++;
-
-	    }
+	    	}
 
 	}
 
-	if (grid[row][right] == TREE || grid[row][right] == BURNING) {
+	if (grid[row][left] == TREE || grid[row][left] == BURNING) { //checks the row left coordinate
 
-	   total_nbr++;
+		total_count++;
 
-	    if (grid[row][right] == BURNING) {
+		if (grid[row][left] == BURNING) {
 
-	        burn_nbr++;
+	        	burn_count++;
 
-	    }
-
-	}
-
-	if (grid[bottom][left] == TREE || grid[bottom][left] == BURNING) {
-
-	    total_nbr++;
-
-	    if (grid[bottom][left] == BURNING) {
-
-	        burn_nbr++;
-
-	    }
+	    	}
 
 	}
 
-	if (grid[bottom][col] == TREE || grid[bottom][col] == BURNING) {
+	if (grid[row][right] == TREE || grid[row][right] == BURNING) { //checks the row right coordinate
 
-	    total_nbr++;
+		total_count++;
 
-	    if (grid[bottom][col] == BURNING) {
+		if (grid[row][right] == BURNING) {
 
-	       burn_nbr++;
+	        	burn_count++;
 
-	    }
-
-	}
-
-	if (grid[bottom][right] == TREE || grid[bottom][right] == BURNING) {
-
-	    total_nbr++;
-
-	    if (grid[bottom][right] == BURNING) {
-
-	        burn_nbr++;
-
-	    }
+	    	}
 
 	}
 
-//	printf("%d, %d\n" , total_nbr, burn_nbr);
+	if (grid[bottom][left] == TREE || grid[bottom][left] == BURNING) { //checks the bottom left coordinate
 
-	*real_total_nbr = total_nbr;
-	*real_burn_nbr = burn_nbr;
+		total_count++;
 
-//	printf("%d, %d \n", *real_total_nbr, *real_burn_nbr);
+		if (grid[bottom][left] == BURNING) {
 
-//	printf("%d total, %d burning \n", *total_nbr, *burn_nbr);
+	        	burn_count++;
 
-	if (*real_total_nbr > 0) {
+	    	}
 
-		float proportion_nbr = (float) *real_burn_nbr / *real_total_nbr;
+	}
 
-		float n_prob = (float) n_chance / 100;
+	if (grid[bottom][col] == TREE || grid[bottom][col] == BURNING) { //checks the bottom col coordinate
 
-//		printf("%.2f, %.2f \n", proportion_nbr, n_prob);
+		total_count++;
 
-		if (proportion_nbr > n_prob) {
+		if (grid[bottom][col] == BURNING) {
+
+	     		burn_count++;
+
+	    	}
+
+	}
+
+	if (grid[bottom][right] == TREE || grid[bottom][right] == BURNING) { //checks the bottom right coordinate
+
+		total_count++;
+
+		if (grid[bottom][right] == BURNING) {
+
+	        	burn_count++;
+
+	    	}
+
+	}
+
+	*total_nbr = total_count; //stores total count of neighbors into the pointer so we track the values
+	*burn_nbr = burn_count; //store burn count of neighbors into the pointer so we track the values
+
+	if (*total_nbr > 0) {
+
+		float proportion_nbr = (float) *burn_nbr / *total_nbr; //gets the proportion of neighbors from dividing burning with total neighbors
+
+		float n_prob = (float) n_chance / 100; // neighbor probability chance
+
+		if (proportion_nbr > n_prob) { //if proportion is greater than neighbor percent chance, then we generate a random value
 
 			float rand_val = (float) rand() / RAND_MAX;
 
-			float c_prob = (float) c_chance / 100;
+			float c_prob = (float) c_chance / 100; //catch fire probability chance
 
-//			printf("%.2f randomval, %.2f c probability \n", rand_val, c_prob);
-
-//			printf("\n");
-
-			if (rand_val < c_prob) {
-
-		//		printf("%.2f, %.2f \n", rand_val, c_prob);
+			if (rand_val < c_prob) { //if the random value we generated is less than catch fire probability chance, then the tree starts burning
 
 				return 1;
 
 			}
-
 		}
 	}
 
@@ -173,12 +171,14 @@ int spread(char grid[MAX_GRID][MAX_GRID], int n_chance, int c_chance, int row, i
 
 }
 
-
+/**
+* Gives the output and list of commands to help.
+*/
 static void layout() {
 
 	fprintf(stderr, "usage: wildfire [options]\n");
 	fprintf(stderr, "By default, the simulation runs in overlay display mode.\n");
-	fprintf(stderr, "The -pN option makes the simulation run in print mode to print N states.\n");
+	fprintf(stderr, "The -pN option makes the simulation run in print mode for up to N states.\n");
 
 	fprintf(stderr, "\n");
 	fprintf(stderr, "Simulation Configuration Options:\n");
@@ -193,13 +193,12 @@ static void layout() {
 
 }
 
-
 static void p_header(int step) {
 
 	printf("===========================\n");
 	printf("======== Wildfire =========\n");
 	printf("===========================\n");
-	printf("=== Print %d  Time Steps ===\n", step);
+	printf("=== Print %d Time Steps ===\n", step);
 	printf("===========================\n");
 
 }
@@ -233,7 +232,7 @@ static void command_parse(int argc, char *argv[]) {
 
 			tmpsize = (int) strtol(optarg, NULL, 10);
 
-			if (tmpsize < 1 && tmpsize > 100) {
+			if (tmpsize >= 1 && tmpsize <= 100) {
 
 				b_chance = tmpsize;
 
@@ -518,7 +517,7 @@ void initialize_grid(char grid[MAX_GRID][MAX_GRID], int size, int d_chance, int 
 
 			cells[i] = BURNING;
 
-		} else if (i < treeT_num) {
+		} else if (i <= treeT_num) {
 
 			cells[i] = TREE;
 
@@ -532,13 +531,13 @@ void initialize_grid(char grid[MAX_GRID][MAX_GRID], int size, int d_chance, int 
 
     	fy_shuffle(cells, total_cell);
 
-	int i = 0;
+	int cell = 0;
 
     	for (int r = 0; r < size; r++) {
 
 		for (int c = 0; c < size; c++) {
 
-			grid[r][c] = cells[i++];
+			grid[r][c] = cells[cell++];
 
 		}
 
@@ -580,7 +579,6 @@ int main(int argc, char *argv[]) {
 
 	if (p_mode > 0) {
 
-
 		if (cycle == 0) {
 
 			p_header(p_mode);
@@ -607,14 +605,12 @@ int main(int argc, char *argv[]) {
 
 				cycle++;
 
-				//cumulative_change += current_change;
-
 				display_grid(grid, s_size, c_chance, d_chance, b_chance, n_chance, cycle, current_change, cumulative_change);
 
         	    		printf("Fires are out\n");
+
 	            		break;
         		}
-
 
 			cycle++;
 
@@ -632,8 +628,6 @@ int main(int argc, char *argv[]) {
 
 			o_mode(grid, s_size, c_chance, d_chance, b_chance, n_chance, cycle, current_change, cumulative_change);
 
-//		        o_mode(grid, s_size, c_chance, d_chance, b_chance, n_chance);
-
 		        usleep(750000);
 
 		        update_grid(grid, s_size, c_chance, n_chance, &current_change);
@@ -643,8 +637,6 @@ int main(int argc, char *argv[]) {
 		        if (!fire_checker(grid, s_size)) {
 
 				o_mode(grid, s_size, c_chance, d_chance, b_chance, n_chance, cycle, current_change, cumulative_change);
-
-//				o_mode(grid, s_size, c_chance, d_chance, b_chance, n_chance);
 
 		        	printf("Fires are out\n");
 
