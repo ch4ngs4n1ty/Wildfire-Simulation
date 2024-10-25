@@ -513,9 +513,12 @@ void o_mode(char grid[MAX_GRID][MAX_GRID], int size, int c_chance, int d_chance,
 
 		for (int col = 0; col < size; col++) {
 
+			set_cur_pos(row, col + 1);
 			put(grid[row][col]);
 
 		}
+
+		set_cur_pos(row + 1, 0);
 
 		put('\n');
 
@@ -526,6 +529,7 @@ void o_mode(char grid[MAX_GRID][MAX_GRID], int size, int c_chance, int d_chance,
 	float pBurning = (float) b_chance / 100.0;
 	float pNeighbor = (float) n_chance / 100.0;
 
+	set_cur_pos(size, 0);
 	printf("size %d, pCatch %.2f, density %.2f, pBurning %.2f, pNeighbor %.2f \n", size, pCatch, density, pBurning, pNeighbor);
 	printf("cycle %d, current changes %d, cumulative changes %d.\n", cycle, current_change, cumulative_change);
 
@@ -711,6 +715,8 @@ int main(int argc, char *argv[]) {
 
 		while (1) {
 
+			set_cur_pos(1, 0);
+
 			o_mode(grid, s_size, c_chance, d_chance, b_chance, n_chance, cycle, current_change, cumulative_change);
 
 		        usleep(750000); //causes the overlay mode to slow down
@@ -720,6 +726,8 @@ int main(int argc, char *argv[]) {
 			cumulative_change += current_change;
 
 		        if (!fire_checker(grid, s_size)) { //if there's no fire then the fire is out
+
+				cycle++;
 
 				o_mode(grid, s_size, c_chance, d_chance, b_chance, n_chance, cycle, current_change, cumulative_change);
 
