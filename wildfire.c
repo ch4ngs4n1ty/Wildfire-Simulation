@@ -13,12 +13,13 @@
 
 #include "display.h"
 
-#define MAX_GRID 40 // maximum cell size grid
-#define MIN 1
-#define MAX 100
+#define MAX_GRID 40 ///< maximum cell size grid
 
-#define EMPTY ' ' // empty character
-#define TREE 'Y' // tree character
+#define MIN 1 ///< minimum value
+#define MAX 100 ///< maximum value
+
+#define EMPTY ' ' ///empty character
+#define TREE 'Y' ///tree character
 #define BURNING '*' //fire character
 #define BURNED '.' //burned character
 
