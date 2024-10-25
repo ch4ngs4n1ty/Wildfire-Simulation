@@ -14,11 +14,20 @@
 #include "display.h"
 
 #define MAX_GRID 40 // maximum cell size grid
+#define MIN 1
+#define MAX 100
 
-#define EMPTY ' '
-#define TREE 'Y'
-#define BURNING '*'
-#define BURNED '.'
+#define EMPTY ' ' // empty character
+#define TREE 'Y' // tree character
+#define BURNING '*' //fire character
+#define BURNED '.' //burned character
+
+char grid[MAX_GRID][MAX_GRID]; //the grid
+
+char copy_grid[MAX_GRID][MAX_GRID]; //the copy grid
+
+int counter[MAX_GRID][MAX_GRID]; //used to count seconds for each burning tree, stores number of seconds for each cell
+
 
 static int b_chance = 10; //inital value of burn percent chance
 static int c_chance = 30; //initial value of tree catching fire percent chance
@@ -26,8 +35,6 @@ static int d_chance = 50; //initial value of density of the forest percent thanc
 static int n_chance = 25; //initial value of neighbor effect that tree might catch fire
 static int p_mode = 0; //number of runs to display
 static int s_size = 10; //default size of the grid
-
-int counter[MAX_GRID][MAX_GRID]; //used to count seconds for each burning tree
 
 /**
 * Decides whether this cell gets to be burned in fire or not
@@ -193,6 +200,9 @@ static void layout() {
 
 }
 
+/**
+* When the user calls for print mode, the function will output this first before displaying the grids
+*/
 static void p_header(int step) {
 
 	printf("===========================\n");
@@ -203,20 +213,20 @@ static void p_header(int step) {
 
 }
 
-
 /*
 * Gets the user inputs and stores value while command parsing
 *
+* @param argc: the number of arguements that's being passed from command line
+* @param argv: array of characters that has arguements from command line
 *
-*
+* @return: the updated values the user inputted in command line
 */
-
 static void command_parse(int argc, char *argv[]) {
 
 	int opt;
 	int tmpsize = 0;
 
-	while ( ( opt = getopt( argc, argv, "Hs:b:c:d:n:p:s") ) != -1) {
+	while ( ( opt = getopt( argc, argv, "Hs:b:c:d:n:p:s") ) != -1) { //loops the user inputs
 
 		switch (opt) {
 
@@ -232,7 +242,7 @@ static void command_parse(int argc, char *argv[]) {
 
 			tmpsize = (int) strtol(optarg, NULL, 10);
 
-			if (tmpsize >= 1 && tmpsize <= 100) {
+			if (tmpsize >= MIN && tmpsize <= MAX) {
 
 				b_chance = tmpsize;
 
@@ -249,7 +259,7 @@ static void command_parse(int argc, char *argv[]) {
 			break;
 
 
-		case 'c': // probability of tree catching fire, percentage chance
+		case 'c': //probability of tree catching fire, percentage chance
 
 			tmpsize = (int) strtol(optarg, NULL, 10);
 
@@ -268,7 +278,7 @@ static void command_parse(int argc, char *argv[]) {
 			break;
 
 
-		case 'd':
+		case 'd': //percent of the density trees
 
 			tmpsize = (int) strtol(optarg, NULL, 10);
 
@@ -288,7 +298,7 @@ static void command_parse(int argc, char *argv[]) {
 
 			break;
 
-		case 'n':
+		case 'n': //neighbor percent influence with catching fire
 
 			tmpsize = (int) strtol(optarg, NULL, 10);
 
@@ -308,7 +318,7 @@ static void command_parse(int argc, char *argv[]) {
 
 			break;
 
-		case 'p':
+		case 'p': //a number of states that's being printed
 
 			tmpsize = (int) strtol(optarg, NULL, 10);
 
@@ -328,7 +338,7 @@ static void command_parse(int argc, char *argv[]) {
 
 			break;
 
-		case 's':
+		case 's': //number of the grid size
 
 			tmpsize = (int) strtol(optarg, NULL, 10);
 
@@ -346,7 +356,7 @@ static void command_parse(int argc, char *argv[]) {
 
 			break;
 
-		default:
+		default: //does the default configurations with default settings
 
 			break;
 
@@ -354,13 +364,29 @@ static void command_parse(int argc, char *argv[]) {
 	}
 }
 
+/**
+* Displays the current grid
+*
+* @param grid: current grid of containing current cells
+* @param size: current size of the grid
+* @param c_chance: probability of tree catching fire
+* @param d_chance: percentage of density trees
+* @param b_chance: percentage of burning trees
+* @param n_chance: neighbor effect percent
+* @param cycle: step for each updated grid
+* @param current_change: number of current changes in the grid
+* @param cumulative_change: number of total changes for the simulation
+*
+* @return: the output of the current grid
+*
+*/
 void display_grid(char grid[MAX_GRID][MAX_GRID], int size, int c_chance, int d_chance, int b_chance, int n_chance, int cycle, int current_change, int cumulative_change) {
 
 	for (int r = 0; r < size; r++) {
 
 		for (int c = 0; c < size; c++) {
 
-			printf("%c", grid[r][c]);
+			printf("%c", grid[r][c]); //prints each cell of the grid
 
 		}
 
@@ -377,18 +403,26 @@ void display_grid(char grid[MAX_GRID][MAX_GRID], int size, int c_chance, int d_c
 
 }
 
-
+/**
+* Updates the current grid
+*
+* @param grid: current grid of containing current cells
+* @param size: current size of the grid
+* @param c_chance: probability of tree catching fire
+* @param n_chance: neighor effect percent
+* @param current_change: number of current changes in the grid
+*
+* @return: the new updated grid
+*/
 void update_grid(char grid[MAX_GRID][MAX_GRID], int size, int c_chance, int n_chance, int *current_change) {
 
 	*current_change = 0;
-
-	char copy_grid[MAX_GRID][MAX_GRID];
 
 	for (int row = 0; row < size; row++) {
 
 		for(int col = 0; col < size; col++) {
 
-			copy_grid[row][col] = grid[row][col];
+			copy_grid[row][col] = grid[row][col]; //sets the copy grid with the current grid
 
 		}
 
@@ -398,20 +432,19 @@ void update_grid(char grid[MAX_GRID][MAX_GRID], int size, int c_chance, int n_ch
 
 		for (int col = 0; col < size; col++) {
 
-			char character = grid[row][col];
+			char character = grid[row][col]; //character of the cell
 
-			if (character == EMPTY) {
+			if (character == EMPTY) { //character that's empty will always be empty
 
 				copy_grid[row][col] = EMPTY;
 
-			} else if (character == TREE) {
-
+			} else if (character == TREE) { //character that's a tree will start a spread function
 
 				int total_nbr = 0;
 
 				int burn_nbr = 0;
 
-				if (spread(grid, n_chance, c_chance, row, col, &total_nbr, &burn_nbr)) {
+				if (spread(grid, n_chance, c_chance, row, col, &total_nbr, &burn_nbr)) { //if the tree gets caught on fire, it starts burning process
 
 					copy_grid[row][col] = BURNING;
 					counter[row][col] = 0;
@@ -419,24 +452,24 @@ void update_grid(char grid[MAX_GRID][MAX_GRID], int size, int c_chance, int n_ch
 
 				}
 
-			} else if (character == BURNING) {
+			} else if (character == BURNING) { //if that cell is still burning, we check the counter next
 
-				counter[row][col]++;
+				counter[row][col]++; //increments the seconds to keep track when it will burn out
 
-				if (counter[row][col] < 4) {
+				if (counter[row][col] < 4) { //if the counter is less than 4 then, it still burns
 
 					copy_grid[row][col] = BURNING;
-					counter[row][col]++;
+					counter[row][col]++; //increments seconds for the counter
 
 				} else {
 
-					copy_grid[row][col] = BURNED;
+					copy_grid[row][col] = BURNED; //if greater or equal to 4 seconds from counter, the cell burns out
 					(*current_change)++;
 
 				}
 
 
-			} else if (character == BURNED) {
+			} else if (character == BURNED) { //if the cell is burned out, it stays burned out
 
 				copy_grid[row][col] = BURNED;
 
@@ -448,7 +481,7 @@ void update_grid(char grid[MAX_GRID][MAX_GRID], int size, int c_chance, int n_ch
 
 		for (int col = 0; col < size; col++) {
 
-			grid[row][col] = copy_grid[row][col];
+			grid[row][col] = copy_grid[row][col]; //after changing copy grid, it's put back to the main grid
 
 		}
 
@@ -456,6 +489,21 @@ void update_grid(char grid[MAX_GRID][MAX_GRID], int size, int c_chance, int n_ch
 
 }
 
+/**
+* Displays the current grid in overlay mode
+*
+* @param grid: current grid of containing current cells
+* @param size: current size of the grid
+* @param c_chance: probability of tree catching fire
+* @param d_chance: percentage of density trees
+* @param b_chance: percentage of burning trees
+* @param n_chance: neighbor effect percent
+* @param cycle: step for each updated grid
+* @param current_change: number of current changes in the grid
+* @param cumulative_change: number of total changes for the simulation
+*
+* @return: the output of the current grid in overlay mode
+*/
 void o_mode(char grid[MAX_GRID][MAX_GRID], int size, int c_chance, int d_chance, int b_chance, int n_chance, int cycle, int current_change, int cumulative_change) {
 
 	set_cur_pos(1, 0);
@@ -472,8 +520,6 @@ void o_mode(char grid[MAX_GRID][MAX_GRID], int size, int c_chance, int d_chance,
 
 	}
 
-	set_cur_pos(size + 1, 0);
-
 	float pCatch = (float) c_chance / 100.0;
 	float density = (float) d_chance / 100.0;
 	float pBurning = (float) b_chance / 100.0;
@@ -484,6 +530,14 @@ void o_mode(char grid[MAX_GRID][MAX_GRID], int size, int c_chance, int d_chance,
 
 }
 
+/**
+* Randomization for the cells
+*
+* @param cells: the array of cells
+* @param n: total number of cells
+*
+* @return: random placement of the cells
+*/
 void fy_shuffle(int *cells, int n) {
 
 	for (int i = n - 1; i > 0; --i) {
@@ -493,10 +547,19 @@ void fy_shuffle(int *cells, int n) {
 		int temp = cells[i];
 		cells[i] = cells[j];
 		cells[j] = temp;
-
 	}
 }
 
+/**
+* Sets up the start of the grid
+*
+* @param grid: current grid containing current cells
+* @param size: current size of the grid
+* @param d_chance: percentage of density trees
+* @param b_chance: percentage of burning trees
+*
+* @return: the initialization of the grid
+*/
 void initialize_grid(char grid[MAX_GRID][MAX_GRID], int size, int d_chance, int b_chance) {
 
 	float d_prob = (float) d_chance/100; // percentage chance of density
@@ -505,31 +568,35 @@ void initialize_grid(char grid[MAX_GRID][MAX_GRID], int size, int d_chance, int 
 
 	int total_cell = size * size; //gets total number of cells in a grid
 
-	int treeT_num = (int)(d_prob * total_cell);
+	int treeT_num = (int)(d_prob * total_cell); //number of tree cells
 
-	int burnT_num = (int)(b_prob * treeT_num);
+	int burnT_num = (int)(b_prob * treeT_num); //number of burning cells
+
+	int emptyT_num = total_cell - (treeT_num + burnT_num); //number of empty cells
 
 	int cells[total_cell]; // max cell array
 
-	 for (int i = 0; i < total_cell; i++) {
+	int i = 0;
 
-		if (i < burnT_num) {
+	for (int t = 0; t < treeT_num; t++) {
 
-			cells[i] = BURNING;
+		cells[i++] = TREE; //sets up tree cells
 
-		} else if (i <= treeT_num) {
+	}
 
-			cells[i] = TREE;
+	for (int b = 0; b < burnT_num; b++) {
 
-		} else {
+		cells[i++] = BURNING; //sets up burning cells
 
-			cells[i] = EMPTY;
+	}
 
-		}
+	for (int e = 0; e < emptyT_num; e++) {
 
-    	}
+		cells[i++] = EMPTY; //sets up empty cells
 
-    	fy_shuffle(cells, total_cell);
+	}
+
+    	fy_shuffle(cells, total_cell); //shuffles the cells to randomize the initialization grid
 
 	int cell = 0;
 
@@ -537,7 +604,7 @@ void initialize_grid(char grid[MAX_GRID][MAX_GRID], int size, int d_chance, int 
 
 		for (int c = 0; c < size; c++) {
 
-			grid[r][c] = cells[cell++];
+			grid[r][c] = cells[cell++]; //sets the grid from the single array of cells
 
 		}
 
@@ -545,6 +612,14 @@ void initialize_grid(char grid[MAX_GRID][MAX_GRID], int size, int d_chance, int 
 
 }
 
+/**
+* Checks to see if there's still fire inside the grid
+*
+* @param grid: current grid containing current cells
+* @param size: current size of the grid
+*
+* @return 1 if there is still fire in the grid, 0 if there isn't
+*/
 int fire_checker(char grid[MAX_GRID][MAX_GRID], int size) {
 
 	for (int row = 0; row < size; row++) {
@@ -564,22 +639,29 @@ int fire_checker(char grid[MAX_GRID][MAX_GRID], int size) {
 	return 0;
 }
 
+/**
+* Main function of wildfire.c program.
+* Takes the user inputs and then decides whether user wants print or overlay mode
+*
+* @param argc: the number of arguements that's being passed from command line
+* @param argv: array of characters that has arguements from command line
+*
+* @return: 0 for sucess
+*/
 int main(int argc, char *argv[]) {
 
-	srand(41);
+	srand(41); //seed of the random number
 
-	int cycle = 0;
+	int cycle = 0; //steps for each updated grid
 
 	int current_change = 0;
 	int cumulative_change = 0;
 
 	command_parse(argc, argv);
 
-	char grid[MAX_GRID][MAX_GRID];
+	if (p_mode > 0) { //print mode
 
-	if (p_mode > 0) {
-
-		if (cycle == 0) {
+		if (cycle == 0) { //when cycle is 0 for print mode, we do the header first
 
 			p_header(p_mode);
 
@@ -591,9 +673,11 @@ int main(int argc, char *argv[]) {
 
 			cumulative_change += current_change;
 
+			cycle++;
+
 		}
 
-		for (int i = 0; i < p_mode; i++) {
+		for (int i = 0; i < p_mode; i++) { //iterates the print mode with the number of cycles user wants
 
 			display_grid(grid, s_size, c_chance, d_chance, b_chance, n_chance, cycle, current_change, cumulative_change);
 
@@ -601,7 +685,7 @@ int main(int argc, char *argv[]) {
 
 			cumulative_change += current_change;
 
-	        	if (!fire_checker(grid, s_size)) {
+	        	if (!fire_checker(grid, s_size)) { //if there's no fire then the fire is out
 
 				cycle++;
 
@@ -616,25 +700,23 @@ int main(int argc, char *argv[]) {
 
 		}
 
-	} else {
+	} else { //overlay mode
 
 		initialize_grid(grid, s_size, d_chance, b_chance);
 
-		clear();
+		clear(); //clears the whole terminal to set up the overlay mode
 
 		while (1) {
 
-			set_cur_pos(1, 0);
-
 			o_mode(grid, s_size, c_chance, d_chance, b_chance, n_chance, cycle, current_change, cumulative_change);
 
-		        usleep(750000);
+		        usleep(750000); //causes the overlay mode to slow down
 
 		        update_grid(grid, s_size, c_chance, n_chance, &current_change);
 
 			cumulative_change += current_change;
 
-		        if (!fire_checker(grid, s_size)) {
+		        if (!fire_checker(grid, s_size)) { //if there's no fire then the fire is out
 
 				o_mode(grid, s_size, c_chance, d_chance, b_chance, n_chance, cycle, current_change, cumulative_change);
 
