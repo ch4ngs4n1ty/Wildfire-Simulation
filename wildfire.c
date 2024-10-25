@@ -568,9 +568,11 @@ void initialize_grid(char grid[MAX_GRID][MAX_GRID], int size, int d_chance, int 
 
 	int total_cell = size * size; //gets total number of cells in a grid
 
-	int treeT_num = (int)(d_prob * total_cell); //number of tree cells
+	int temp_treeT_num = (int) (d_prob * total_cell); //temporary number of trees
 
-	int burnT_num = (int)(b_prob * treeT_num); //number of burning cells
+	int burnT_num = (int) (b_prob * temp_treeT_num); //number of burning cells
+
+	int treeT_num = temp_treeT_num - burnT_num;
 
 	int emptyT_num = total_cell - (treeT_num + burnT_num); //number of empty cells
 
