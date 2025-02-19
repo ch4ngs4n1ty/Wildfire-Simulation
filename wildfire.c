@@ -530,7 +530,9 @@ void o_mode(char grid[MAX_GRID][MAX_GRID], int size, int c_chance, int d_chance,
 	float pNeighbor = (float) n_chance / 100.0;
 
 	set_cur_pos(size, 0);
+
 	printf("size %d, pCatch %.2f, density %.2f, pBurning %.2f, pNeighbor %.2f \n", size, pCatch, density, pBurning, pNeighbor);
+
 	printf("cycle %d, current changes %d, cumulative changes %d.\n", cycle, current_change, cumulative_change);
 
 }

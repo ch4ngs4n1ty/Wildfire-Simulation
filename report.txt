@@ -1,0 +1,45 @@
+============================= ASSIGNMENT REPORT ============================
+Assignment name is: Wildfire
+My name is:         Ethan Chang
+
+	[USE PLAIN TEXT]
+	[INSERT ANSWERS AFTER EACH QUESTION AND ADD MORE LINES AS NEEDED.]
+	[MAKE YOUR ANSWERS SHORT AND TO THE POINT. BULLET POINTS ARE GOOD.]
+
+===== In what cases does the program run correctly?  =================
+
+The program runs correctly when the input is valid and the outputs seem to be working and looks functional.
+
+===== In what cases does the program fail and how?  ==================
+
+Before, I would make calculation errors with number of trees, number of empty spaces, and number of burning trees.
+
+===== If applicable, what were the extra credit results?  ============
+===== If applicable, describe how to run the extra credit.  ==========
+
+
+===== How much time did I spend on the project?  =====================
+
+I spend probably 8 hours each week on the project arounnd 2 weeks Also attempted to do all nighters to make some progress.
+
+===== What did I learn?  =============================================
+
+I learned more about C language, how to test it, and find ways to debug it. 
+
+===== What was easy in this assignment?  =============================
+
+Setting up command parsements and writing some functions that were easy to understand from the write up.
+
+===== What gave me problems or troubles?  ============================
+
+Being able to understand if the spread function was working and overlay gave me most of problems and detours while working on project.
+
+===== What would be the most important improvement for the project?  =
+
+The most important improvement is being able to get better at programming with C language and being able to read it.
+
+===== What else would I have liked to do for this assignment?  =======
+
+I would have liked more visualization on the grids so it's more easier to see to make sure update is doing its work.
+
+============================================================================

@@ -1,0 +1,137 @@
+commit 77eadfdf5572f2603f6ef06dd700a21ef9c1bd6c
+Author: Ethan L Chang <elc6696@rit.edu>
+Date:   Fri Oct 25 02:28:12 2024 -0400
+
+    Completed all of the documentations in wildfire.c file
+
+commit 7c524f12fb6a13dfff68496fac0dc124b04bc40a
+Author: Ethan L Chang <elc6696@rit.edu>
+Date:   Fri Oct 25 02:26:03 2024 -0400
+
+    Fixed the initialization grid of setting up empty, tree, and burning characters.
+
+commit a244b31a64fdbb11620073bd185c5dca7adac45d
+Author: Ethan L Chang <elc6696@rit.edu>
+Date:   Fri Oct 25 01:47:50 2024 -0400
+
+    Fixed the initialization grid, before the grid was getting wrong number of fire cells
+
+commit d0c863014ed3f8e4829ce28111b1643805f0243b
+Author: Ethan L Chang <elc6696@rit.edu>
+Date:   Thu Oct 24 01:43:17 2024 -0400
+
+    Added documentations for spread function
+
+commit 5fb11803ef4c209eddf664c2538c775372d315ce
+Author: Ethan L Chang <elc6696@rit.edu>
+Date:   Wed Oct 23 00:59:22 2024 -0400
+
+    Completed error handling for wildfire project. All of them works, will be working on documentations next
+
+commit 507f624955c25985e799e9cf66711ea767baeba5
+Author: Ethan L Chang <elc6696@rit.edu>
+Date:   Tue Oct 22 02:00:31 2024 -0400
+
+    Got the cycle, current change, and cumulative change to work with the outputs. Will be working on handling error next time
+
+commit 8e87d7590f49540fcbaf912a8576b07fbfa75901
+Author: Ethan L Chang <elc6696@rit.edu>
+Date:   Mon Oct 21 21:39:37 2024 -0400
+
+    Added output with cumulative change and change
+
+commit f8f15c42a7ee57b58d4ce1655e17b6deb50cb38b
+Author: Ethan L Chang <elc6696@rit.edu>
+Date:   Mon Oct 21 19:31:47 2024 -0400
+
+    Modified some changes to initialization grid, double checked the rules and tried to match it with the rules
+
+commit 1823590d94a60c64d527d719cdabc428149ff5c4
+Author: Ethan L Chang <elc6696@rit.edu>
+Date:   Sun Oct 20 23:10:41 2024 -0400
+
+    Complete overlay and print mode. Both are functional, just need to catch errors right now
+
+commit 560e65a9d11d8d5fc3a4754013e767c3f35040c5
+Author: Ethan L Chang <elc6696@rit.edu>
+Date:   Sun Oct 20 22:33:15 2024 -0400
+
+    Got the overlay mode to kind of work, just need to add rules in the code
+
+commit 51c05f065c14ef534c149c345e602870030b591c
+Author: Ethan L Chang <elc6696@rit.edu>
+Date:   Sun Oct 20 17:54:47 2024 -0400
+
+    Added overlay mode, still working on cursor placement
+
+commit 1c1f6baf4c6257cf9ed18376c30f56b7027ccbfa
+Author: Ethan L Chang <elc6696@rit.edu>
+Date:   Sun Oct 20 14:07:03 2024 -0400
+
+    Testing the algorithms with neighbors and probability with catching fire, mostly looks good
+
+commit 83ba0d23c2b4f500d39fefb21b114d36fc74c402
+Author: Ethan L Chang <elc6696@rit.edu>
+Date:   Sat Oct 19 05:47:59 2024 -0400
+
+    Worked on checking to see if there's anymore fire, if there isn't, it breaks the loop
+
+commit 6abfeca11492674adc5d2db03b7687ebb31f1d39
+Author: Ethan L Chang <elc6696@rit.edu>
+Date:   Sat Oct 19 04:35:56 2024 -0400
+
+    Completed update() and spread() function, seems to be functionally working
+
+commit 3e0d87013f66e0a08daa16a7d4c15e9323acf7b3
+Author: Ethan L Chang <elc6696@rit.edu>
+Date:   Fri Oct 18 02:39:36 2024 -0400
+
+    Fixed memory allocationo so it can be globally allocated and added the print mode (only print same thing each loop
+
+commit 49ccd6f1ff67a3efffcfb755e67074a087679711
+Author: Ethan L Chang <elc6696@rit.edu>
+Date:   Thu Oct 17 17:43:38 2024 -0400
+
+    Got the initialization grid to actually work, has the right number of trees and burning number of trees
+
+commit 1e1ad6fdb2204a78bc507d57428ebe76afa0901f
+Author: Ethan L Chang <elc6696@rit.edu>
+Date:   Fri Oct 11 05:26:44 2024 -0400
+
+    Reformatted some code and added some documentation. Completed the initial grid
+
+commit ff85cad1617fcc351c8dc20baddc1c57f2fbb6e9
+Author: Ethan L Chang <elc6696@rit.edu>
+Date:   Fri Oct 11 05:01:40 2024 -0400
+
+    Finally able to get the output I want, before I keep getting empty grids
+
+commit 0fda50363580ce138d698091d95290cbbe2f4fd2
+Author: Ethan L Chang <elc6696@rit.edu>
+Date:   Fri Oct 11 03:52:46 2024 -0400
+
+    added fisher and yates method function
+
+commit 426d19b410b69c059ce1375bd8ccda2240a55359
+Author: Ethan L Chang <elc6696@rit.edu>
+Date:   Fri Oct 11 03:34:19 2024 -0400
+
+    made functions for command parsements to make main() function simple
+
+commit 6c7f2ecaa7e2b27127228dec1e990235b516b11f
+Author: Ethan L Chang <elc6696@rit.edu>
+Date:   Fri Oct 11 00:54:05 2024 -0400
+
+    got the command parsements to work in wildfire.c
+
+commit 91de8c08f171fc8f9728a9cf8840662254e5abde
+Author: Ethan L Chang <elc6696@rit.edu>
+Date:   Thu Oct 10 22:47:49 2024 -0400
+
+    still working on command parsement
+
+commit a223146747fe77310a8670022aea5ee36efd6eaa
+Author: Ethan L Chang <elc6696@rit.edu>
+Date:   Fri Oct 4 10:49:28 2024 -0400
+
+    Fixed -H and -b command arguements
